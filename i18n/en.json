@@ -49,7 +49,7 @@
     }
   },
   "researchTopic": {
-    "title": "1. Research Topic",
+    "title": "2. Research Topic",
     "inputTitle": "Research Topic",
     "placeholder": "Whatever you want to research...",
     "numOfQuestions": "Number of Questions",
@@ -62,7 +62,7 @@
     "researching": "Researching..."
   },
   "modelFeedback": {
-    "title": "2. Model Feedback",
+    "title": "3. Model Feedback",
     "description": "The AI will ask you some follow up questions to help you clarify the research direction.",
     "waiting": "Waiting for model feedback...",
     "submit": "Submit Answer",
@@ -70,7 +70,7 @@
     "noQuestions": "The model did not return any follow-up questions."
   },
   "webBrowsing": {
-    "title": "3. Web Browsing",
+    "title": "4. Web Browsing",
     "description": "The AI will then search the web based on our research goal, and iterate until the depth is reached.",
     "clickToView": "Click a child node to view details.",
     "nodeDetails": "Node Details",
@@ -86,7 +86,7 @@
     "followUpQuestions": "Follow-up Questions"
   },
   "researchReport": {
-    "title": "4. Research Report",
+    "title": "5. Research Report",
     "exportPdf": "Export PDF",
     "exportMarkdown": "Export Markdown",
     "sources": "Sources",
