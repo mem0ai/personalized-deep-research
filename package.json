@@ -30,6 +30,7 @@
     "@vue-flow/controls": "^1.1.2",
     "@vue-flow/core": "^1.42.1",
     "ai": "^4.1.41",
+    "axios": "^1.7.9",
     "js-tiktoken": "^1.0.19",
     "jspdf": "^2.5.2",
     "marked": "^15.0.7",
