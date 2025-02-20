@@ -62,69 +62,69 @@
 </template>
 
 <script setup lang="ts">
-import type ResearchForm from '~/components/ResearchForm.vue'
-import type TextForm from '~/components/TextForm.vue'
-import type ResearchFeedback from '~/components/ResearchFeedback.vue'
-import type DeepResearch from '~/components/DeepResearch/DeepResearch.vue'
-import type ResearchReport from '~/components/ResearchReport.vue'
-import type ConfigManager from '~/components/ConfigManager.vue'
-import type { ResearchInputData } from '~/components/ResearchForm.vue'
-import type { ResearchFeedbackResult } from '~/components/ResearchFeedback.vue'
-import type { ResearchResult } from '~/lib/deep-research'
-import {
-  feedbackInjectionKey,
-  formInjectionKey,
-  researchResultInjectionKey,
-} from '~/constants/injection-keys'
-import MemorySidebar from '~/components/MemorySidebar.vue'
-import { ref, provide } from 'vue'
+  import type ResearchForm from '~/components/ResearchForm.vue'
+  import type TextForm from '~/components/TextForm.vue'
+  import type ResearchFeedback from '~/components/ResearchFeedback.vue'
+  import type DeepResearch from '~/components/DeepResearch/DeepResearch.vue'
+  import type ResearchReport from '~/components/ResearchReport.vue'
+  import type ConfigManager from '~/components/ConfigManager.vue'
+  import type { ResearchInputData } from '~/components/ResearchForm.vue'
+  import type { ResearchFeedbackResult } from '~/components/ResearchFeedback.vue'
+  import type { ResearchResult } from '~/lib/deep-research'
+  import {
+    feedbackInjectionKey,
+    formInjectionKey,
+    researchResultInjectionKey,
+  } from '~/constants/injection-keys'
+  import MemorySidebar from '~/components/MemorySidebar.vue'
+  import { ref, provide } from 'vue'
 
-const version = useRuntimeConfig().public.version
+  const version = useRuntimeConfig().public.version
 
-// Explicitly typed refs:
-const configManagerRef = ref<InstanceType<typeof ConfigManager>>()
-const formRef = ref<InstanceType<typeof ResearchForm>>()
-const feedbackRef = ref<InstanceType<typeof ResearchFeedback>>()
-const deepResearchRef = ref<InstanceType<typeof DeepResearch>>()
-const reportRef = ref<InstanceType<typeof ResearchReport>>()
+  // Explicitly typed refs:
+  const configManagerRef = ref<InstanceType<typeof ConfigManager>>()
+  const formRef = ref<InstanceType<typeof ResearchForm>>()
+  const feedbackRef = ref<InstanceType<typeof ResearchFeedback>>()
+  const deepResearchRef = ref<InstanceType<typeof DeepResearch>>()
+  const reportRef = ref<InstanceType<typeof ResearchReport>>()
 
-const form = ref<ResearchInputData>({
-  query: '',
-  breadth: 2,
-  depth: 2,
-  numQuestions: 3,
-})
-const feedback = ref<ResearchFeedbackResult[]>([])
-const researchResult = ref<ResearchResult>({
-  learnings: [],
-  visitedUrls: [],
-})
+  const form = ref<ResearchInputData>({
+    query: '',
+    breadth: 2,
+    depth: 2,
+    numQuestions: 3,
+  })
+  const feedback = ref<ResearchFeedbackResult[]>([])
+  const researchResult = ref<ResearchResult>({
+    learnings: [],
+    visitedUrls: [],
+  })
 
-provide(formInjectionKey, form)
-provide(feedbackInjectionKey, feedback)
-provide(researchResultInjectionKey, researchResult)
+  provide(formInjectionKey, form)
+  provide(feedbackInjectionKey, feedback)
+  provide(researchResultInjectionKey, researchResult)
 
-async function generateFeedback() {
-  feedbackRef.value?.getFeedback()
-}
+  async function generateFeedback() {
+    feedbackRef.value?.getFeedback()
+  }
 
-async function startDeepSearch() {
-  deepResearchRef.value?.startResearch()
-}
+  async function startDeepSearch() {
+    deepResearchRef.value?.startResearch()
+  }
 
-async function generateReport() {
-  reportRef.value?.generateReport()
-}
+  async function generateReport() {
+    reportRef.value?.generateReport()
+  }
 
-// A reactive trigger for the sidebar refresh (pass as prop)
-const sidebarTrigger = ref(false)
+  // A reactive trigger for the sidebar refresh (pass as prop)
+  const sidebarTrigger = ref(false)
 
-// This reactive variable holds the current width of the sidebar (in pixels)
-const sidebarWidth = ref(384) // default expanded width
+  // This reactive variable holds the current width of the sidebar (in pixels)
+  const sidebarWidth = ref(384) // default expanded width
 
-function updateSidebarWidth(width: number) {
-  sidebarWidth.value = width
-}
+  function updateSidebarWidth(width: number) {
+    sidebarWidth.value = width
+  }
 </script>
 
 <style scoped>
