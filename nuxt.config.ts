@@ -11,8 +11,10 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
+    MEM0_API_KEY: process.env.MEM0_API_KEY,
     public: {
       version: projVersion,
+      MEM0_API_KEY: process.env.MEM0_API_KEY
     },
   },
 

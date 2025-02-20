@@ -121,7 +121,7 @@
       defineEmits,
       defineProps,
     } from 'vue'
-    import { getAllMemories } from '../lib/mem0'
+    import { useMem0Client } from '../lib/mem0'
     interface Memory {
       id: string
       memory: string
@@ -142,6 +142,7 @@
     const userId = ref<string>('')
     // Dummy function to simulate obtaining a user ID
     const getUserId = (): string => 'dummyUserId'
+    const { getAllMemories } = useMem0Client()
     // Simulate fetching memories with getAllMemories function
     const fetchMemories = async () => {
       isLoading.value = true
