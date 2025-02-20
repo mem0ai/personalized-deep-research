@@ -19,26 +19,6 @@
                 <LangSwitcher />
               </div>
             </div>
-  <div class="min-h-screen relative">
-    <div class="flex flex-col lg:flex-row">
-      <!-- Main Content -->
-      <div class="flex-1" :style="{ marginRight: sidebarWidth + 'px' }">
-        <UContainer>
-          <div class="max-w-4xl mx-auto py-8 flex flex-col gap-y-4">
-            <div class="flex flex-col sm:flex-row gap-2">
-              <h1 class="text-3xl font-bold text-center mb-2">
-                Deep Research
-                <span class="text-xs text-gray-400 dark:text-gray-500">
-                  v{{ version }}
-                </span>
-              </h1>
-              <div class="mx-auto sm:ml-auto sm:mr-0 flex items-center gap-2">
-                <GitHubButton />
-                <ConfigManager ref="configManagerRef" />
-                <ColorModeButton />
-                <LangSwitcher />
-              </div>
-            </div>
 
             <i18n-t
               class="whitespace-pre-wrap"
@@ -145,14 +125,8 @@
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width
   }
-
-  // A reactive trigger for the sidebar refresh (pass as prop)
-  const sidebarTrigger = ref(false)
-
-  // This reactive variable holds the current width of the sidebar (in pixels)
-  const sidebarWidth = ref(384) // default expanded width
-
-  function updateSidebarWidth(width: number) {
-    sidebarWidth.value = width
-  }
 </script>
+
+<style scoped>
+/* No extra background color changes here */
+</style>
