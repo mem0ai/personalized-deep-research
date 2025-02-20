@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-
+import { saveToMem0 } from '~/lib/mem0'
 const resume = ref<string>('')
 const isLoading = ref(false)
-
 const emit = defineEmits<{ (e: 'submit', resume: string): void }>()
-
 // Disable the submit button if the resume is empty (after trimming)
 const isSubmitDisabled = computed(() => resume.value.trim().length === 0)
-
-function handleSubmit() {
-  emit('submit', resume.value)
+async function handleSubmit() {
+  try {
+    isLoading.value = true
+    await saveToMem0(resume.value)
+    emit('submit', resume.value)
+  } catch (error) {
+    console.error('Error submitting resume:', error)
+    // You may want to add error handling UI here
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -45,4 +51,8 @@ function handleSubmit() {
       </UButton>
     </template>
   </UCard>
+<<<<<<< HEAD
 </template>
+=======
+</template>
+>>>>>>> origin/mem0
