@@ -35,6 +35,7 @@
               </UButton>
             </i18n-t>
 
+            <TextForm />
             <ResearchForm
               :is-loading-feedback="!!feedbackRef?.isLoading"
               ref="formRef"
@@ -62,6 +63,7 @@
 
 <script setup lang="ts">
 import type ResearchForm from '~/components/ResearchForm.vue'
+import type TextForm from '~/components/TextForm.vue'
 import type ResearchFeedback from '~/components/ResearchFeedback.vue'
 import type DeepResearch from '~/components/DeepResearch/DeepResearch.vue'
 import type ResearchReport from '~/components/ResearchReport.vue'
