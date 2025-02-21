@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { saveToMem0 } from '~/lib/mem0'
+import { useMem0Client } from '~/lib/mem0'
 const resume = ref<string>('')
 const isLoading = ref(false)
 const emit = defineEmits<{ (e: 'submit', resume: string): void }>()
@@ -9,6 +9,7 @@ const isSubmitDisabled = computed(() => resume.value.trim().length === 0)
 async function handleSubmit() {
   try {
     isLoading.value = true
+    const { saveToMem0 } = useMem0Client()
     await saveToMem0(resume.value)
     emit('submit', resume.value)
   } catch (error) {
