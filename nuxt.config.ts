@@ -11,12 +11,10 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
-    MEM0_API_KEY: process.env.MEM0_API_KEY,
     public: {
       version: projVersion,
       TAVILY_API_KEY: process.env.TAVILY_API_KEY,
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,  
-      MEM0_API_KEY: process.env.MEM0_API_KEY
     },
   },
 
