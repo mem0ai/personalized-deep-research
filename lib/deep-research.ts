@@ -8,6 +8,7 @@ import { languagePrompt, systemPrompt } from './prompt'
 import zodToJsonSchema from 'zod-to-json-schema'
 import { useAiModel } from '~/composables/useAiProvider'
 import type { Locale } from '~/components/LangSwitcher.vue'
+import { useMem0Client } from '~/lib/mem0'
 
 export type ResearchResult = {
   learnings: string[]
@@ -80,6 +81,7 @@ export function generateSearchQueries({
   learnings,
   language,
   searchLanguage,
+  memories,
 }: {
   query: string
   language: string
@@ -88,6 +90,7 @@ export function generateSearchQueries({
   learnings?: string[]
   /** Force the LLM to generate serp queries in a certain language */
   searchLanguage?: string
+  memories?: string[]
 }) {
   const schema = z.object({
     queries: z
@@ -118,6 +121,11 @@ export function generateSearchQueries({
           '\n',
         )}`
       : '',
+    memories
+      ? `Here are some user preferences from previous research, strictly follow them to generate more specific queries: ${memories.join(
+          '\n',
+        )}`
+      : '',
     `You MUST respond in JSON matching this JSON schema: ${jsonSchema}`,
     lp,
   ].join('\n\n')
@@ -141,12 +149,14 @@ function processSearchResult({
   numLearnings = 3,
   numFollowUpQuestions = 3,
   language,
+  memories,
 }: {
   query: string
   results: WebSearchResult[]
   language: string
   numLearnings?: number
   numFollowUpQuestions?: number
+  memories?: string[]
 }) {
   const schema = z.object({
     learnings: z
@@ -161,7 +171,9 @@ function processSearchResult({
   const jsonSchema = JSON.stringify(zodToJsonSchema(schema))
   const contents = results.map((item) => trimPrompt(item.content, 25_000))
   const prompt = [
-    `Given the following contents from a SERP search for the query <query>${query}</query>, generate a list of learnings from the contents. Return a maximum of ${numLearnings} learnings, but feel free to return less if the contents are clear. Make sure each learning is unique and not similar to each other. The learnings should be concise and to the point, as detailed and information dense as possible. Make sure to include any entities like people, places, companies, products, things, etc in the learnings, as well as any exact metrics, numbers, or dates. The learnings will be used to research the topic further.`,
+    `Given the following contents from a SERP search for the query <query>${query}</query>, generate a list of learnings from the contents. Return a maximum of ${numLearnings} learnings, but feel free to return less if the contents are clear. Strictly follow the user preferences: ${memories?.join(
+      '\n',
+    )} to generate the learnings. Make sure each learning is unique and not similar to each other. The learnings should be concise and to the point, as detailed and information dense as possible. Make sure to include any entities like people, places, companies, products, things, etc in the learnings, as well as any exact metrics, numbers, or dates. The learnings will be used to research the topic further.`,
     `<contents>${contents
       .map((content) => `<content>\n${content}\n</content>`)
       .join('\n')}</contents>`,
@@ -183,7 +195,8 @@ export function writeFinalReport({
   prompt,
   learnings,
   language,
-}: WriteFinalReportParams) {
+  memories,
+}: WriteFinalReportParams & { memories?: string[] }) {
   const learningsString = trimPrompt(
     learnings
       .map((learning) => `<learning>\n${learning}\n</learning>`)
@@ -195,6 +208,8 @@ export function writeFinalReport({
     `<prompt>${prompt}</prompt>`,
     `Here are all the learnings from previous research:`,
     `<learnings>\n${learningsString}\n</learnings>`,
+    `Here are all the user preferences:`,
+    `<memories>\n${memories?.join('\n')}\n</memories>`,
     `Write the report using Markdown.`,
     languagePrompt(language),
     `## Deep Research Report`,
@@ -229,19 +244,28 @@ export async function deepResearch({
   query: string
   breadth: number
   maxDepth: number
-  /** Language code */
   languageCode: Locale
   learnings?: string[]
   visitedUrls?: string[]
   onProgress: (step: ResearchStep) => void
   currentDepth?: number
   nodeId?: string
-  /** Force the LLM to generate serp queries in a certain language */
   searchLanguage?: string
+  memories?: string[]
 }): Promise<ResearchResult> {
   const { t } = useNuxtApp().$i18n
   const language = t('language', {}, { locale: languageCode })
   const globalLimit = usePLimit()
+  
+  // Fetch memories from Mem0
+  const { getAllMemories } = useMem0Client()
+  let memories: string[] = []
+  try {
+    const memoryResults = await getAllMemories()
+    memories = memoryResults.map(m => m.memory)
+  } catch (error) {
+    console.error('Error fetching memories:', error)
+  }
 
   onProgress({
     type: 'generating_query',
@@ -256,6 +280,7 @@ export async function deepResearch({
       numQueries: breadth,
       language,
       searchLanguage,
+      memories,
     })
 
     let searchQueries: PartialSearchQuery[] = []
@@ -358,6 +383,7 @@ export async function deepResearch({
               results,
               numFollowUpQuestions: nextBreadth,
               language,
+              memories,
             })
             let searchResult: PartialProcessedSearchResult = {}
 
@@ -446,6 +472,7 @@ export async function deepResearch({
                   nodeId: childNodeId(nodeId, i),
                   languageCode,
                   searchLanguage,
+                  memories,
                 })
                 return r
               } catch (error) {
