@@ -51,8 +51,4 @@ async function handleSubmit() {
       </UButton>
     </template>
   </UCard>
-<<<<<<< HEAD
 </template>
-=======
-</template>
->>>>>>> origin/mem0

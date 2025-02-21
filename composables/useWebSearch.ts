@@ -1,5 +1,6 @@
 import { tavily } from '@tavily/core'
 import Firecrawl from '@mendable/firecrawl-js'
+import { useRuntimeConfig } from '#imports'
 
 type WebSearchOptions = {
   maxResults?: number
@@ -19,13 +20,15 @@ type WebSearchFunction = (
 ) => Promise<WebSearchResult[]>
 
 export const useWebSearch = (): WebSearchFunction => {
-  const { config, webSearchApiBase } = useConfigStore()
+  const runtimeConfig = useRuntimeConfig()
+  // Provider is set internally via env.
+  const provider = 'tavily' as string;
 
-  switch (config.webSearch.provider) {
+  switch (provider) {
     case 'firecrawl': {
       const fc = new Firecrawl({
-        apiKey: config.webSearch.apiKey,
-        apiUrl: webSearchApiBase,
+        apiKey: runtimeConfig.public.firecrawlApiKey as string,
+        apiUrl: runtimeConfig.public.firecrawlApiBase as string,
       })
       return async (q: string, o: WebSearchOptions) => {
         const results = await fc.search(q, o)
@@ -44,7 +47,7 @@ export const useWebSearch = (): WebSearchFunction => {
     case 'tavily':
     default: {
       const tvly = tavily({
-        apiKey: config.webSearch.apiKey,
+        apiKey: runtimeConfig.public.TAVILY_API_KEY as string,
       })
       return async (q: string, o: WebSearchOptions) => {
         const results = await tvly.search(q, o)

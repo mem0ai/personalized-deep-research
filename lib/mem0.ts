@@ -1,4 +1,4 @@
-import MemoryClient from './mem0/index'
+import MemoryClient from '~/mem0'
 
 // Initialize Mem0 client
 const client = new MemoryClient({

@@ -13,6 +13,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       version: projVersion,
+      TAVILY_API_KEY: process.env.TAVILY_API_KEY,
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY,  
     },
   },
 

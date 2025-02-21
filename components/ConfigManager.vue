@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useRuntimeConfig } from '#imports'
   interface OpenAICompatibleModel {
     id: string
     object: string
@@ -8,112 +9,50 @@
     data: OpenAICompatibleModel[]
   }
 
-  const {
-    config,
-    aiApiBase,
-    webSearchApiBase,
-    showConfigManager: showModal,
-  } = storeToRefs(useConfigStore())
+  const { config, aiApiBase, showConfigManager: showModal } = storeToRefs(useConfigStore())
+  const runtimeConfig = useRuntimeConfig()
   const { t } = useI18n()
 
+  // Force the internal provider to remain as OpenAI-compatible.
+  // (Internal keys for OpenAI are set via env and stored in config.ai.apiKey and config.ai.apiBase.)
+  config.value.ai.provider = 'openai-compatible'
+
+  // State for model fetching
   const loadingAiModels = ref(false)
   const aiModelOptions = ref<string[]>([])
-  /** If loading AI models failed, use a plain input to improve UX */
   const isLoadAiModelsFailed = ref(false)
 
-  const aiProviderOptions = computed(() => [
-    {
-      label: t('settings.ai.providers.openaiCompatible.title'),
-      help: 'settings.ai.providers.openaiCompatible.description',
-      // Only kept for easy reference in i18n Ally
-      _help: t('settings.ai.providers.openaiCompatible.description'),
-      value: 'openai-compatible',
-    },
-    {
-      label: t('settings.ai.providers.siliconflow.title'),
-      help: 'settings.ai.providers.siliconflow.description',
-      // Only kept for easy reference in i18n Ally
-      _help: t('settings.ai.providers.siliconflow.description'),
-      value: 'siliconflow',
-      link: 'https://cloud.siliconflow.cn/i/J0NHrrX8',
-      linkText: 'cloud.siliconflow.cn',
-    },
-    {
-      label: 'DeepSeek',
-      value: 'deepseek',
-    },
-    {
-      label: 'OpenRouter',
-      value: 'openrouter',
-    },
-    {
-      label: 'Ollama',
-      value: 'ollama',
-    },
-  ])
-  const webSearchProviderOptions = computed(() => [
-    {
-      label: 'Tavily',
-      value: 'tavily',
-      help: 'settings.webSearch.providers.tavily.help',
-      // Only kept for easy reference in i18n Ally
-      _help: t('settings.webSearch.providers.tavily.help'),
-      link: 'https://app.tavily.com/home',
-    },
-    {
-      label: 'Firecrawl',
-      value: 'firecrawl',
-      help: 'settings.webSearch.providers.firecrawl.help',
-      // Only kept for easy reference in i18n Ally
-      _help: t('settings.webSearch.providers.firecrawl.help'),
-      link: 'https://www.firecrawl.dev/app/api-keys',
-      supportsCustomApiBase: true,
-    },
-  ])
-  const selectedAiProvider = computed(() =>
-    aiProviderOptions.value.find((o) => o.value === config.value.ai.provider),
-  )
-  const selectedWebSearchProvider = computed(() =>
-    webSearchProviderOptions.value.find(
-      (o) => o.value === config.value.webSearch.provider,
-    ),
-  )
-
-  // Try to find available AI models based on selected provider
+  // Debounced function: fetch the list of available OpenAI models using the internal OpenAI API key.
   const debouncedListAiModels = useDebounceFn(async () => {
-    if (!config.value.ai.apiKey) return
-    if (!aiApiBase.value || !aiApiBase.value.startsWith('http')) return
-
+    if (!config.value.ai.mem0ApiKey) return
     try {
       loadingAiModels.value = true
       const result: OpenAICompatibleModelsResponse = await $fetch(
-        `${aiApiBase.value}/models`,
+        `https://api.openai.com/v1/models`,
         {
           headers: {
-            Authorization: `Bearer ${config.value.ai.apiKey}`,
+            Authorization: `Bearer ${runtimeConfig.public.OPENAI_API_KEY}`,
           },
-        },
+        }
       )
-      console.log(
-        `Found ${result.data.length} AI models for provider ${config.value.ai.provider}`,
-      )
+      console.log(`Found ${result.data.length} models for provider OpenAI`)
       aiModelOptions.value = result.data.map((m) => m.id)
       isLoadAiModelsFailed.value = false
 
+      // Ensure the current model is in the list.
       if (aiModelOptions.value.length) {
-        // Auto-select the current model
-        if (
-          config.value.ai.model &&
-          !aiModelOptions.value.includes(config.value.ai.model)
-        ) {
-          aiModelOptions.value.unshift(config.value.ai.model)
+        const currentModel = config.value.ai.model
+        if (currentModel && !aiModelOptions.value.includes(currentModel)) {
+          aiModelOptions.value.unshift(currentModel)
         }
       }
     } catch (error) {
-      console.error(`Fetch AI models failed`, error)
+      console.error(`Fetch models failed`, error)
       isLoadAiModelsFailed.value = true
       aiModelOptions.value = []
     } finally {
+      console.log(config)
+      console.log(runtimeConfig)
       loadingAiModels.value = false
     }
   }, 500)
@@ -123,37 +62,13 @@
     config.value.ai.model = model
   }
 
-  // Automatically fetch AI models list
+  // Watch only the internal API key, API base, and modal visibility.
   watch(
-    () => [
-      config.value.ai.provider,
-      config.value.ai.apiKey,
-      config.value.ai.apiBase,
-      showModal.value,
-    ],
+    () => [config.value.ai.mem0ApiKey, aiApiBase.value, showModal.value],
     () => {
-      if (!showModal.value) return
-      debouncedListAiModels()
+      if (showModal.value) debouncedListAiModels()
     },
-    { immediate: true },
-  )
-  // Reset AI config when provider changed
-  watch(
-    () => config.value.ai.provider,
-    () => {
-      config.value.ai.apiKey = ''
-      config.value.ai.apiBase = ''
-      config.value.ai.model = ''
-      config.value.ai.contextSize = undefined
-    },
-  )
-  // Reset web search config when provider changed
-  watch(
-    () => config.value.webSearch.provider,
-    () => {
-      config.value.webSearch.apiKey = ''
-      config.value.webSearch.apiBase = ''
-    },
+    { immediate: true }
   )
 
   defineExpose({
@@ -169,172 +84,57 @@
       <UButton icon="i-lucide-settings" />
 
       <template #body>
-        <div class="flex flex-col gap-y-2">
-          <!-- AI provider -->
-          <h3 class="font-bold">{{ $t('settings.ai.provider') }}</h3>
-          <UFormField>
-            <template v-if="selectedAiProvider?.help" #help>
-              <i18n-t
-                class="whitespace-pre-wrap"
-                :keypath="selectedAiProvider.help"
-                tag="span"
-              >
-                <UButton
-                  v-if="selectedAiProvider.link"
-                  class="!p-0"
-                  :to="selectedAiProvider.link"
-                  target="_blank"
-                  variant="link"
-                >
-                  {{ selectedAiProvider.linkText || selectedAiProvider.link }}
-                </UButton>
-              </i18n-t>
-            </template>
-            <USelect
-              v-model="config.ai.provider"
-              class="w-full"
-              :items="aiProviderOptions"
-            />
-          </UFormField>
-
-          <div class="flex flex-col gap-y-2">
-            <UFormField
-              :label="$t('settings.ai.apiKey')"
-              :required="config.ai.provider !== 'ollama'"
-            >
-              <PasswordInput
-                v-model="config.ai.apiKey"
-                class="w-full"
-                :placeholder="$t('settings.ai.apiKey')"
-              />
-            </UFormField>
-            <UFormField :label="$t('settings.ai.apiBase')">
-              <UInput
-                v-model="config.ai.apiBase"
-                class="w-full"
-                :placeholder="aiApiBase"
-              />
-            </UFormField>
-            <UFormField :label="$t('settings.ai.model')" required>
-              <UInputMenu
-                v-if="aiModelOptions.length && !isLoadAiModelsFailed"
-                v-model="config.ai.model"
-                class="w-full"
-                :items="aiModelOptions"
-                :placeholder="$t('settings.ai.model')"
-                :loading="loadingAiModels"
-                create-item
-                @create="createAndSelectAiModel"
-              />
-              <UInput
-                v-else
-                v-model="config.ai.model"
-                class="w-full"
-                :placeholder="$t('settings.ai.model')"
-              />
-            </UFormField>
-            <UFormField :label="$t('settings.ai.contextSize')">
-              <template #help>
-                {{ $t('settings.ai.contextSizeHelp') }}
-              </template>
-              <UInput
-                v-model="config.ai.contextSize"
-                class="w-26"
-                type="number"
-                placeholder="128000"
-                :min="512"
-              />
-              tokens
-            </UFormField>
-          </div>
-
-          <USeparator class="my-2" />
-
-          <!-- Web search -->
-          <h3 class="font-bold"> {{ $t('settings.webSearch.provider') }} </h3>
-          <UFormField>
-            <template #help>
-              <i18n-t
-                v-if="selectedWebSearchProvider?.help"
-                :keypath="selectedWebSearchProvider.help"
-                tag="p"
-              >
-                <UButton
-                  class="!p-0"
-                  :to="selectedWebSearchProvider.link"
-                  target="_blank"
-                  variant="link"
-                >
-                  {{ selectedWebSearchProvider.link }}
-                </UButton>
-              </i18n-t>
-            </template>
-            <USelect
-              v-model="config.webSearch.provider"
-              class="w-30"
-              :items="webSearchProviderOptions"
-            />
-          </UFormField>
-          <UFormField
-            :label="$t('settings.webSearch.apiKey')"
-            :required="!config.webSearch.apiBase"
-          >
+        <div class="flex flex-col gap-y-4">
+          <!-- 1) Mem0 API Key (user editable) -->
+          <UFormField label="Mem0 API Key" required>
             <PasswordInput
-              v-model="config.webSearch.apiKey"
+              v-model="config.ai.mem0ApiKey"
               class="w-full"
-              :placeholder="$t('settings.webSearch.apiKey')"
+              placeholder="Enter your Mem0 API key"
             />
           </UFormField>
-          <UFormField
-            v-if="selectedWebSearchProvider?.supportsCustomApiBase"
-            :label="$t('settings.webSearch.apiBase')"
-          >
+
+          <!-- 2) OpenAI Model Selection (fetched using internal OpenAI key/base) -->
+          <UFormField :label="$t('settings.ai.model')" required>
+            <UInputMenu
+              v-if="aiModelOptions.length && !isLoadAiModelsFailed"
+              v-model="config.ai.model"
+              class="w-full"
+              :items="aiModelOptions"
+              :placeholder="$t('settings.ai.model')"
+              :loading="loadingAiModels"
+              create-item
+              @create="createAndSelectAiModel"
+            />
             <UInput
-              v-model="config.webSearch.apiBase"
+              v-else
+              v-model="config.ai.model"
               class="w-full"
-              :placeholder="webSearchApiBase"
+              :placeholder="$t('settings.ai.model')"
             />
           </UFormField>
-          <UFormField :label="$t('settings.webSearch.queryLanguage')">
+
+          <!-- 3) Context Size -->
+          <UFormField :label="$t('settings.ai.contextSize')">
             <template #help>
-              <i18n-t
-                class="whitespace-pre-wrap"
-                keypath="settings.webSearch.queryLanguageHelp"
-                tag="p"
-              />
-            </template>
-            <LangSwitcher
-              :value="config.webSearch.searchLanguage"
-              @update="config.webSearch.searchLanguage = $event"
-              private
-            />
-          </UFormField>
-          <UFormField :label="$t('settings.webSearch.concurrencyLimit')">
-            <template #help>
-              {{ $t('settings.webSearch.concurrencyLimitHelp') }}
+              {{ $t('settings.ai.contextSizeHelp') }}
             </template>
             <UInput
-              v-model="config.webSearch.concurrencyLimit"
-              class="w-15"
+              v-model="config.ai.contextSize"
+              class="w-26"
               type="number"
-              placeholder="2"
-              :min="1"
-              :max="5"
-              :step="1"
+              placeholder="128000"
+              :min="512"
             />
+            tokens
           </UFormField>
         </div>
       </template>
+
       <template #footer>
         <div class="flex items-center justify-between gap-2 w-full">
-          <p class="text-sm text-gray-500">
-            {{ $t('settings.disclaimer') }}
-          </p>
-          <UButton
-            color="primary"
-            icon="i-lucide-check"
-            @click="showModal = false"
-          >
+          <p class="text-sm text-gray-500">{{ $t('settings.disclaimer') }}</p>
+          <UButton color="primary" icon="i-lucide-check" @click="showModal = false">
             {{ $t('settings.save') }}
           </UButton>
         </div>
