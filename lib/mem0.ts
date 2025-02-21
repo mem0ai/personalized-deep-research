@@ -3,11 +3,17 @@ import { useRuntimeConfig } from '#app'
 
 // Create a composable to handle Mem0 client initialization
 export function useMem0Client() {
-  const config = useRuntimeConfig()
-  
+  const { config, aiApiBase } = useConfigStore()
+
+  const apiKey = (config.ai.mem0ApiKey as string) || ''
+  if (!apiKey) {
+    console.error('Mem0 API key not set')
+    return null
+  }
+
   // Initialize Mem0 client
   const client = new MemoryClient({
-    apiKey: (config.MEM0_API_KEY as string) || (config.public.MEM0_API_KEY as string),
+    apiKey: apiKey,
   })
 
   const saveToMem0 = async (text: string) => {

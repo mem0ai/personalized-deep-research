@@ -9,7 +9,13 @@ const isSubmitDisabled = computed(() => resume.value.trim().length === 0)
 async function handleSubmit() {
   try {
     isLoading.value = true
-    const { saveToMem0 } = useMem0Client()
+    const mem0Client = useMem0Client();
+    const saveToMem0: (text: string) => Promise<any> =
+      mem0Client?.saveToMem0 ||
+      (async (text: string) => {
+        console.error('Mem0 client is not available, cannot save to Mem0');
+      });
+
     await saveToMem0(resume.value)
     emit('submit', resume.value)
   } catch (error) {

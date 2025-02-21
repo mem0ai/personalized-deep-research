@@ -35,7 +35,7 @@
               </UButton>
             </i18n-t>
 
-            <TextForm />
+            <TextForm @submit="onTextFormSubmit" />
             <ResearchForm
               :is-loading-feedback="!!feedbackRef?.isLoading"
               ref="formRef"
@@ -54,7 +54,7 @@
 
       <!-- Sidebar -->
       <div class="hidden lg:block">
-        <MemorySidebar :trigger="sidebarTrigger" @collapse-change="updateSidebarWidth" />
+        <MemorySidebar :trigger="sidebarTrigger" :fetchTrigger="memoryFetchTrigger" @collapse-change="updateSidebarWidth" />
       </div>
     </div>
     <AutoUpdateToast />
@@ -118,12 +118,18 @@
 
   // A reactive trigger for the sidebar refresh (pass as prop)
   const sidebarTrigger = ref(false)
+  const memoryFetchTrigger = ref(false)
 
   // This reactive variable holds the current width of the sidebar (in pixels)
   const sidebarWidth = ref(384) // default expanded width
 
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width
+  }
+
+  function onTextFormSubmit(resume: string) {
+    // Toggle so that MemorySidebar's watcher detects a change.
+    memoryFetchTrigger.value = !memoryFetchTrigger.value
   }
 </script>
 

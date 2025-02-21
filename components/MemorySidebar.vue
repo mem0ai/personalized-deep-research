@@ -93,11 +93,10 @@
                  class="memory-item p-4 border-b">
               <div class="memory-content mb-2">{{ memory.memory }}</div>
               <div class="memory-categories flex gap-2 mb-1">
-                <span v-for="category in memory.categories" 
-                      :key="category" 
-                      class="category-tag bg-gray-100 px-2 py-1 rounded-full text-xs text-gray-600">
-                  {{ category }}
-                </span>
+                <span v-for="category in memory.categories" :key="category"
+                class="inline-flex items-center rounded-md border border-gray-300 px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-[#252c40] text-xs">
+                {{ category }}
+              </span>
               </div>
               <div class="text-xs text-gray-500">
                 {{ new Date(memory.updated_at).toLocaleString() }}
@@ -124,15 +123,15 @@
     import { useMem0Client } from '../lib/mem0'
     interface Memory {
       id: string
-      memory: string
-      user_id: string
-      metadata: any
-      categories: string[]
-      created_at: string
-      updated_at: string
+      memory?: string | undefined
+      user_id?: string | undefined
+      metadata?: any
+      categories?: string[] | undefined
+      created_at?: any
+      updated_at?: any
     }
     // Props: trigger (to refresh memories on change)
-    const props = defineProps<{ trigger: boolean }>()
+    const props = defineProps<{ trigger: boolean, fetchTrigger: boolean }>()
     // Emit collapse-change event with the current sidebar width (in pixels)
     const emit = defineEmits<{ (e: 'collapse-change', width: number): void }>()
     // Component state
@@ -140,14 +139,22 @@
     const isLoading = ref(false)
     const memories = ref<Memory[]>([])
     const userId = ref<string>('')
+    const { config } = useConfigStore()
     // Dummy function to simulate obtaining a user ID
     const getUserId = (): string => 'dummyUserId'
-    const { getAllMemories } = useMem0Client()
-    // Simulate fetching memories with getAllMemories function
-    const fetchMemories = async () => {
+
+    async function fetchMemories() {
       isLoading.value = true
       try {
-        memories.value = await getAllMemories()
+        // Re-run the composable *each time* we fetch.
+        const mem0Client = useMem0Client()
+        if (!mem0Client) {
+          // Means no API key
+          memories.value = []
+        } else {
+          // Use the real client’s function
+          memories.value = await mem0Client.getAllMemories()
+        }
       } catch (error) {
         console.error('Error fetching memories:', error)
         memories.value = []
@@ -155,6 +162,7 @@
         isLoading.value = false
       }
     }
+
     // Simulate deleting all memories
     const deleteAllMemories = async () => {
       isLoading.value = true
@@ -182,7 +190,7 @@
     })
     // Watch for changes in the trigger prop to refresh memories after a delay
     watch(
-      () => props.trigger,
+      () => [props.fetchTrigger, config.ai.mem0ApiKey],
       () => {
         if (userId.value) {
           const timeoutId = setTimeout(() => {
@@ -249,15 +257,9 @@
       transition: background-color 0.2s;
     }
     .memory-item:hover {
-      background-color: rgba(0, 0, 0, 0.02);
+      background-color: #252c40;
     }
     .memory-content {
       line-height: 1.5;
-    }
-    .category-tag {
-      transition: background-color 0.2s;
-    }
-    .category-tag:hover {
-      background-color: rgba(0, 0, 0, 0.1);
     }
   </style>

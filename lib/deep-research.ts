@@ -258,7 +258,10 @@ export async function deepResearch({
   const globalLimit = usePLimit()
   
   // Fetch memories from Mem0
-  const { getAllMemories } = useMem0Client()
+  const mem0Client = useMem0Client();
+  const getAllMemories: () => Promise<any[]> =
+    mem0Client?.getAllMemories || (async () => []);
+
   let memories: string[] = []
   try {
     const memoryResults = await getAllMemories()
