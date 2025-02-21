@@ -2,7 +2,7 @@
   <div class="min-h-screen relative">
     <div class="flex flex-col lg:flex-row">
       <!-- Main Content -->
-      <div class="flex-1" :style="{ marginRight: sidebarWidth + 'px' }">
+      <div class="flex-1 h-screen overflow-y-auto" :style="{ marginRight: sidebarWidth + 'px' }">
         <UContainer>
           <div class="max-w-4xl mx-auto py-8 flex flex-col gap-y-4">
             <div class="flex flex-col sm:flex-row gap-2">
