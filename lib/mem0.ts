@@ -1,4 +1,4 @@
-import MemoryClient from './mem0/index'
+import MemoryClient from '~/mem0'
 import { useRuntimeConfig } from '#app'
 
 // Create a composable to handle Mem0 client initialization
@@ -7,7 +7,7 @@ export function useMem0Client() {
   
   // Initialize Mem0 client
   const client = new MemoryClient({
-    apiKey: config.MEM0_API_KEY || config.public.MEM0_API_KEY,
+    apiKey: (config.MEM0_API_KEY as string) || (config.public.MEM0_API_KEY as string),
   })
 
   const saveToMem0 = async (text: string) => {

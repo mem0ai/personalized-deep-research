@@ -6,34 +6,39 @@ import {
   wrapLanguageModel,
   type LanguageModelV1,
 } from 'ai'
+import { useRuntimeConfig } from '#imports'
 
 export const useAiModel = () => {
   const { config, aiApiBase } = useConfigStore()
+  const runtimeConfig = useRuntimeConfig()
   let model: LanguageModelV1
 
-  if (config.ai.provider === 'openrouter') {
+  const provider = 'openai' as string
+  // These env variables are expected to be set for each provider.
+  const apiKey = runtimeConfig.public.OPENAI_API_KEY as string
+
+  if (provider === 'openrouter') {
     const openRouter = createOpenRouter({
-      apiKey: config.ai.apiKey,
+      apiKey,
       baseURL: aiApiBase,
     })
     model = openRouter(config.ai.model, {
       includeReasoning: true,
     })
   } else if (
-    config.ai.provider === 'deepseek' ||
-    config.ai.provider === 'siliconflow' ||
-    // Special case if model name includes 'deepseek'
-    // This ensures compatibilty with providers like Siliconflow
-    config.ai.model?.toLowerCase().includes('deepseek')
+    provider === 'deepseek' ||
+    provider === 'siliconflow' ||
+    (config.ai.model && config.ai.model.toLowerCase().includes('deepseek'))
   ) {
     const deepSeek = createDeepSeek({
-      apiKey: config.ai.apiKey,
+      apiKey,
       baseURL: aiApiBase,
     })
     model = deepSeek(config.ai.model)
   } else {
+    // Default to OpenAI-compatible (also used for mem0)
     const openai = createOpenAI({
-      apiKey: config.ai.apiKey,
+      apiKey,
       baseURL: aiApiBase,
     })
     model = openai(config.ai.model)
