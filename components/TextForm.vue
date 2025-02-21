@@ -39,6 +39,11 @@ function handleFileChange(e: Event) {
 }
 
 function openPreview() {
+  if (!pdfFile.value) {
+    console.error("No PDF file selected.")
+    return
+  }
+  parsePDF(pdfFile.value);
   isPreviewVisible.value = true
 }
 
@@ -68,30 +73,44 @@ onUnmounted(() => {
 
 async function parsePDF(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = async (e) => {
       try {
-        const arrayBuffer = e.target?.result
+        const arrayBuffer = e.target?.result;
         if (!arrayBuffer) {
-          reject(new Error("Failed to read file"))
-          return
+          reject(new Error("Failed to read file"));
+          return;
         }
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        let text = ''
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = "";
         for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i)
-          const content = await page.getTextContent()
-          const pageText = content.items.map((item: any) => item.str).join(' ')
-          text += pageText + '\n'
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          let pageText = "";
+          let lastY: number | null = null;
+          content.items.forEach((item: any) => {
+            const y = item.transform[5];
+            // if the vertical difference is significant, start a new line
+            if (lastY !== null && Math.abs(y - lastY) > 5) {
+              pageText += "\n";
+            } else if (lastY !== null) {
+              // otherwise, add a space between words
+              pageText += " ";
+            }
+            pageText += item.str;
+            lastY = y;
+          });
+          fullText += pageText + "\n";
         }
-        resolve(text)
+        console.log("Parsed text:", fullText);
+        resolve(fullText);
       } catch (err) {
-        reject(err)
+        reject(err);
       }
-    }
-    reader.onerror = (err) => reject(err)
-    reader.readAsArrayBuffer(file)
-  })
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsArrayBuffer(file);
+  });
 }
 
 async function handleSubmit() {
