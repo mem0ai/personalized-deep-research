@@ -16,6 +16,13 @@ export const useAiModel = () => {
   const provider = 'openai' as string
   // These env variables are expected to be set for each provider.
   const apiKey = runtimeConfig.public.OPENAI_API_KEY as string
+  const heliconeApiKey = runtimeConfig.public.HELICONE_API_KEY as string
+
+  // Common headers for Helicone
+  const heliconeHeaders = {
+    'Helicone-Auth': `Bearer ${heliconeApiKey}`,
+    'Helicone-Cache-Enabled': 'true'
+  }
 
   if (provider === 'openrouter') {
     const openRouter = createOpenRouter({
@@ -37,11 +44,20 @@ export const useAiModel = () => {
     model = deepSeek(config.ai.model)
   } else {
     // Default to OpenAI-compatible (also used for mem0)
-    const openai = createOpenAI({
-      apiKey,
-      baseURL: aiApiBase,
-    })
-    model = openai(config.ai.model)
+    if (heliconeApiKey) {
+      const openai = createOpenAI({
+        apiKey,
+        baseURL: 'https://oai.hconeai.com/v1',  // Helicone proxy URL
+        headers: heliconeHeaders
+      })
+      model = openai(config.ai.model)
+    } else {
+      const openai = createOpenAI({
+        apiKey,
+        baseURL: aiApiBase,
+      })
+      model = openai(config.ai.model)
+    }
   }
 
   return wrapLanguageModel({
