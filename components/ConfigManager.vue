@@ -1,3 +1,114 @@
+<template>
+  <div>
+    <UModal v-model:open="showModal" :title="$t('settings.title')">
+      <UButton icon="i-lucide-settings" />
+
+      <template #body>
+        <div class="flex flex-col gap-y-4">
+          <!-- 1) Mem0 API Key (user editable) -->
+          <UFormField label="Mem0 API Key" required>
+            <PasswordInput
+              v-model="config.ai.mem0ApiKey"
+              class="w-full"
+              placeholder="Enter your Mem0 API key"
+            />
+            <template #help>
+              <span
+                v-html="$t('settings.ai.providers.mem0.description', ['<a href=\'https://app.mem0.ai/dashboard\' target=\'_blank\' class=\'text-blue-500 underline\'>Mem0</a>'])"
+              ></span>
+            </template>
+          </UFormField>
+
+          <!-- 2) OpenAI Model Selection -->
+          <UFormField :label="$t('settings.ai.model')" required>
+            <UInputMenu
+              v-if="aiModelOptions.length && !isLoadAiModelsFailed"
+              v-model="config.ai.model"
+              class="w-full"
+              :items="aiModelOptions"
+              :placeholder="$t('settings.ai.model')"
+              :loading="loadingAiModels"
+              create-item
+              @create="createAndSelectAiModel"
+            />
+            <UInput
+              v-else
+              v-model="config.ai.model"
+              class="w-full"
+              :placeholder="$t('settings.ai.model')"
+            />
+          </UFormField>
+
+          <!-- 3) Context Size -->
+          <UFormField :label="$t('settings.ai.contextSize')">
+            <template #help>
+              {{ $t('settings.ai.contextSizeHelp') }}
+            </template>
+            <UInput
+              v-model="config.ai.contextSize"
+              class="w-26"
+              type="number"
+              placeholder="128000"
+              :min="512"
+            />
+            tokens
+          </UFormField>
+
+          <!-- 4) New fields moved from index.vue -->
+          <div class="flex flex-col gap-y-4">
+            <UFormField :label="$t('researchTopic.numOfQuestions')" required>
+              <template #help>
+                {{ $t('researchTopic.numOfQuestionsHelp') }}
+              </template>
+              <UInput
+                v-model.number="config.ai.numQuestions"
+                class="w-full"
+                type="number"
+                :min="1"
+                :max="5"
+                :step="1"
+              />
+            </UFormField>
+
+            <UFormField :label="$t('researchTopic.depth')" required>
+              <template #help>{{ $t('researchTopic.depthHelp') }}</template>
+              <UInput
+                v-model.number="config.ai.depth"
+                class="w-full"
+                type="number"
+                :min="1"
+                :max="5"
+                :step="1"
+              />
+            </UFormField>
+
+            <UFormField :label="$t('researchTopic.breadth')" required>
+              <template #help>{{ $t('researchTopic.breadthHelp') }}</template>
+              <UInput
+                v-model.number="config.ai.breadth"
+                class="w-full"
+                type="number"
+                :min="1"
+                :max="5"
+                :step="1"
+              />
+            </UFormField>
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex items-center justify-between gap-2 w-full">
+          <p class="text-sm text-gray-500">{{ $t('settings.disclaimer') }}</p>
+          <UButton color="primary" icon="i-lucide-check" @click="showModal = false">
+            {{ $t('settings.save') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </div>
+</template>
+
 <script setup lang="ts">
   import { useRuntimeConfig } from '#imports'
   interface OpenAICompatibleModel {
@@ -17,6 +128,16 @@
   // (Internal keys for OpenAI are set via env and stored in config.ai.apiKey and config.ai.apiBase.)
   config.value.ai.provider = 'openai-compatible'
 
+  // Initialize new fields if not present
+  if (config.value.ai.numQuestions === undefined) {
+    config.value.ai.numQuestions = 3
+  }
+  if (config.value.ai.depth === undefined) {
+    config.value.ai.depth = 2
+  }
+  if (config.value.ai.breadth === undefined) {
+    config.value.ai.breadth = 2
+  }
   // State for model fetching
   const loadingAiModels = ref(false)
   const aiModelOptions = ref<string[]>([])
@@ -77,73 +198,3 @@
     },
   })
 </script>
-
-<template>
-  <div>
-    <UModal v-model:open="showModal" :title="$t('settings.title')">
-      <UButton icon="i-lucide-settings" />
-
-      <template #body>
-        <div class="flex flex-col gap-y-4">
-          <!-- 1) Mem0 API Key (user editable) -->
-          <UFormField label="Mem0 API Key" required>
-            <PasswordInput
-              v-model="config.ai.mem0ApiKey"
-              class="w-full"
-              placeholder="Enter your Mem0 API key"
-            />
-            <template #help>
-              <span
-                v-html="$t('settings.ai.providers.mem0.description', ['<a href=\'https://app.mem0.ai/dashboard\' target=\'_blank\' class=\'text-blue-500 underline\'>Mem0</a>'])"
-              ></span>
-            </template>
-          </UFormField>
-
-          <!-- 2) OpenAI Model Selection (fetched using internal OpenAI key/base) -->
-          <UFormField :label="$t('settings.ai.model')" required>
-            <UInputMenu
-              v-if="aiModelOptions.length && !isLoadAiModelsFailed"
-              v-model="config.ai.model"
-              class="w-full"
-              :items="aiModelOptions"
-              :placeholder="$t('settings.ai.model')"
-              :loading="loadingAiModels"
-              create-item
-              @create="createAndSelectAiModel"
-            />
-            <UInput
-              v-else
-              v-model="config.ai.model"
-              class="w-full"
-              :placeholder="$t('settings.ai.model')"
-            />
-          </UFormField>
-
-          <!-- 3) Context Size -->
-          <UFormField :label="$t('settings.ai.contextSize')">
-            <template #help>
-              {{ $t('settings.ai.contextSizeHelp') }}
-            </template>
-            <UInput
-              v-model="config.ai.contextSize"
-              class="w-26"
-              type="number"
-              placeholder="128000"
-              :min="512"
-            />
-            tokens
-          </UFormField>
-        </div>
-      </template>
-
-      <template #footer>
-        <div class="flex items-center justify-between gap-2 w-full">
-          <p class="text-sm text-gray-500">{{ $t('settings.disclaimer') }}</p>
-          <UButton color="primary" icon="i-lucide-check" @click="showModal = false">
-            {{ $t('settings.save') }}
-          </UButton>
-        </div>
-      </template>
-    </UModal>
-  </div>
-</template>

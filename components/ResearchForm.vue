@@ -46,46 +46,6 @@
           required
         />
       </UFormField>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <UFormField :label="$t('researchTopic.numOfQuestions')" required>
-          <template #help>
-            {{ $t('researchTopic.numOfQuestionsHelp') }}
-          </template>
-          <UInput
-            v-model="form.numQuestions"
-            class="w-full"
-            type="number"
-            :min="1"
-            :max="5"
-            :step="1"
-          />
-        </UFormField>
-
-        <UFormField :label="$t('researchTopic.depth')" required>
-          <template #help>{{ $t('researchTopic.depthHelp') }}</template>
-          <UInput
-            v-model="form.depth"
-            class="w-full"
-            type="number"
-            :min="1"
-            :max="5"
-            :step="1"
-          />
-        </UFormField>
-
-        <UFormField :label="$t('researchTopic.breadth')" required>
-          <template #help>{{ $t('researchTopic.breadthHelp') }}</template>
-          <UInput
-            v-model="form.breadth"
-            class="w-full"
-            type="number"
-            :min="1"
-            :max="5"
-            :step="1"
-          />
-        </UFormField>
-      </div>
     </div>
 
     <template #footer>
