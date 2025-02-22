@@ -91,11 +91,12 @@
             <div v-if="memories.length > 0">
               <div v-for="memory in reversedMemories" 
                   :key="memory.id" 
-                  class="memory-item p-4 border-b">
+                  class="memory-item p-4 border-b border-[#ffffff55]"
+                  @click="selectMemory(memory)">                  
                 <div class="memory-content mb-2">{{ memory.memory }}</div>
                 <div class="memory-categories flex gap-2 mb-1">
                   <span v-for="category in memory.categories" :key="category"
-                  class="inline-flex items-center rounded-md border border-gray-300 px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-[#252c40] text-xs">
+                  class="inline-flex items-center rounded-md border border-[#ffffff55] px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-[#27272a] text-xs">
                   {{ category }}
                 </span>
                 </div>
@@ -110,9 +111,15 @@
           </div>
         </div>
       </div>
+      <!-- Edit Memory Modal -->
+      <EditMemoryModal
+        :memory="selectedMemory" 
+        @updateMemory="handleMemoryUpdate"
+        @deleteMemory="handleMemoryDelete"
+      />
     </aside>
   </template>
-  
+
   <script setup lang="ts">
     import {
       ref,
@@ -123,6 +130,8 @@
       defineProps,
     } from 'vue'
     import { useMem0Client } from '../lib/mem0'
+    import EditMemoryModal from './EditMemoryModal.vue'
+
     interface Memory {
       id: string
       memory?: string | undefined
@@ -132,29 +141,25 @@
       created_at?: any
       updated_at?: any
     }
-    // Props: trigger (to refresh memories on change)
     const props = defineProps<{ trigger: boolean, fetchTrigger: boolean }>()
-    // Emit collapse-change event with the current sidebar width (in pixels)
     const emit = defineEmits<{ (e: 'collapse-change', width: number): void }>()
-    // Component state
+
     const isCollapsed = ref(false)
     const isLoading = ref(false)
     const memories = ref<Memory[]>([])
+    const selectedMemory = ref<Memory | null>(null)
     const userId = ref<string>('')
+
     const { config } = useConfigStore()
-    // Dummy function to simulate obtaining a user ID
     const getUserId = (): string => 'dummyUserId'
 
     async function fetchMemories() {
       isLoading.value = true
       try {
-        // Re-run the composable *each time* we fetch.
         const mem0Client = useMem0Client()
         if (!mem0Client) {
-          // Means no API key
           memories.value = []
         } else {
-          // Use the real client’s function
           memories.value = await mem0Client.getAllMemories()
         }
       } catch (error) {
@@ -165,32 +170,58 @@
       }
     }
 
-    // Simulate deleting all memories
     const deleteAllMemories = async () => {
       isLoading.value = true
       await new Promise((resolve) => setTimeout(resolve, 300))
       memories.value = []
       isLoading.value = false
     }
-    // Computed property for reversed memories
+
     const reversedMemories = computed(() => [...memories.value].reverse())
-    // Compute aside element classes – fixed on large screens with full height.
+
     const asideClasses = computed(() => {
       const widthClass = isCollapsed.value ? 'w-10' : 'w-96'
       return `memories pt-2.5 z-50 transition-[width] ease-in-out duration-300 ${widthClass} h-screen lg:fixed lg:top-0 lg:right-0`
     })
-    // Toggle the sidebar and emit the new width.
+
     const toggleSidebar = () => {
       isCollapsed.value = !isCollapsed.value
       emit('collapse-change', isCollapsed.value ? 40 : 384)
     }
+
+    function selectMemory(memory: Memory) {
+      if (selectedMemory.value?.id === memory.id) {
+        // If same memory is clicked, clear it first
+        // This is done in order to re-render the EditMemoryModal
+        selectedMemory.value = null;
+        nextTick(() => {
+          selectedMemory.value = memory;
+        });
+      } else {
+        selectedMemory.value = memory;
+      }
+    }
+
+    function handleMemoryUpdate(updated: Memory) {
+      // Replace the updated memory in your memories list
+      memories.value = memories.value.map((m) =>
+        m.id === updated.id ? updated : m
+      )
+      selectedMemory.value = null
+    }
+
+    function handleMemoryDelete(id: string) {
+      memories.value = memories.value.filter((m) => m.id !== id)
+      selectedMemory.value = null
+    }
+
     onMounted(() => {
       userId.value = getUserId()
       if (userId.value) {
         fetchMemories()
       }
     })
-    // Watch for changes in the trigger prop to refresh memories after a delay
+
     watch(
       () => [props.fetchTrigger, config.ai.mem0ApiKey],
       () => {
@@ -200,14 +231,15 @@
           }, 3000)
           return () => clearTimeout(timeoutId)
         }
-      },
+      }
     )
-  </script>
+</script>
+
   
   <style scoped>
     .memories {
       /* No explicit background so it blends with the page */
-      border: 1px solid #e5e7eb;
+      border: 1px solid #ffffff55;
       border-radius: 0.375rem;
     }
     /* Toggle button styles */
@@ -217,14 +249,14 @@
       justify-content: center;
       width: 2rem;
       height: 2rem;
-      border: 1px solid #d1d5db;
-      background-color: #111729;
+      border: 1px solid #ffffff55;
+      background-color: #18181b;
       border-radius: 0.375rem;
       cursor: pointer;
       transition: background-color 0.2s;
     }
     .toggle-btn:hover {
-      background-color: #252c40;
+      background-color: #27272a;
     }
     .chevron-icon {
       transition: transform 0.5s ease-in-out;
@@ -236,14 +268,14 @@
       justify-content: center;
       width: 2.25rem;
       height: 2.25rem;
-      border: 1px solid #d1d5db;
+      border: 1px solid #ffffff55;
       background-color: transparent;
       border-radius: 0.375rem;
       cursor: pointer;
       transition: background-color 0.2s, color 0.2s;
     }
     .action-btn:hover {
-      background-color: #252c40;
+      background-color: #27272a;
     }
     .icon {
       width: 1rem;
@@ -258,7 +290,7 @@
       transition: background-color 0.2s;
     }
     .memory-item:hover {
-      background-color: #252c40;
+      background-color: #27272a;
     }
     .memory-content {
       line-height: 1.5;
