@@ -92,6 +92,11 @@
               class="w-full"
               placeholder="Enter your Mem0 API key"
             />
+            <template #help>
+              <span
+                v-html="$t('settings.ai.providers.mem0.description', ['<a href=\'https://app.mem0.ai/dashboard\' target=\'_blank\' class=\'text-blue-500 underline\'>Mem0</a>'])"
+              ></span>
+            </template>
           </UFormField>
 
           <!-- 2) OpenAI Model Selection (fetched using internal OpenAI key/base) -->
