@@ -11,8 +11,11 @@
 @import '@nuxt/ui';
 
 :root {
-  --ui-bg: #18181b;
   --ui-primary: #287cff;
+}
+
+.dark {
+  --ui-bg: #18181b;
   --ui-border: #ffffff55;
 }
 

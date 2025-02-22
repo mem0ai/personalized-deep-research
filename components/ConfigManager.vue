@@ -92,6 +92,9 @@
               class="w-full"
               placeholder="Enter your Mem0 API key"
             />
+            <template #help>
+              {{ $t('settings.ai.providers.mem0.description'), { link: 'https://mem0.ai' } }}
+            </template>
           </UFormField>
 
           <!-- 2) OpenAI Model Selection (fetched using internal OpenAI key/base) -->
