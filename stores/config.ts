@@ -17,6 +17,9 @@ export interface ConfigAi {
   mem0ApiKey?: string
   model: string
   contextSize?: number
+  numQuestions: number
+  depth: number
+  breadth: number
 }
 
 export interface ConfigWebSearch {
@@ -44,6 +47,9 @@ export const useConfigStore = defineStore('config', () => {
       provider: 'openai-compatible',
       model: '',
       contextSize: 128000,
+      numQuestions: 3,
+      depth: 2,
+      breadth: 2,
     },
     webSearch: {
       searchLanguage: 'en',

@@ -87,18 +87,25 @@
   const feedbackRef = ref<InstanceType<typeof ResearchFeedback>>()
   const deepResearchRef = ref<InstanceType<typeof DeepResearch>>()
   const reportRef = ref<InstanceType<typeof ResearchReport>>()
+  const { config } = useConfigStore()
 
   const form = ref<ResearchInputData>({
     query: '',
-    breadth: 2,
-    depth: 2,
-    numQuestions: 3,
+    numQuestions: config.ai.numQuestions,
+    depth: config.ai.depth,
+    breadth: config.ai.breadth,
   })
   const feedback = ref<ResearchFeedbackResult[]>([])
   const researchResult = ref<ResearchResult>({
     learnings: [],
     visitedUrls: [],
   })
+
+  watchEffect(() => {
+    form.value.numQuestions = config.ai.numQuestions;
+    form.value.depth = config.ai.depth;
+    form.value.breadth = config.ai.breadth;
+  });
 
   provide(formInjectionKey, form)
   provide(feedbackInjectionKey, feedback)
@@ -121,7 +128,7 @@
   const memoryFetchTrigger = ref(false)
 
   // This reactive variable holds the current width of the sidebar (in pixels)
-  const sidebarWidth = ref(384) // default expanded width
+  const sidebarWidth = ref(40) // default collapsed width
 
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width

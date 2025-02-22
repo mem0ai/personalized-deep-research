@@ -144,7 +144,7 @@
   const props = defineProps<{ trigger: boolean, fetchTrigger: boolean }>()
   const emit = defineEmits<{ (e: 'collapse-change', width: number): void }>()
 
-  const isCollapsed = ref(false)
+  const isCollapsed = ref(true)
   const isLoading = ref(false)
   const memories = ref<Memory[]>([])
   const selectedMemory = ref<Memory | null>(null)
@@ -155,12 +155,16 @@
 
   async function fetchMemories() {
     isLoading.value = true
+    const isFirstFetch = memories.value.length === 0
     try {
       const mem0Client = useMem0Client()
       if (!mem0Client) {
         memories.value = []
       } else {
         memories.value = await mem0Client.getAllMemories()
+        if (isFirstFetch && memories.value.length > 0) {
+          toggleSidebar();
+        }
       }
     } catch (error) {
       console.error('Error fetching memories:', error)

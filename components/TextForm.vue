@@ -10,6 +10,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mi
 const pdfFile = ref<File | null>(null)
 const pdfPreviewUrl = ref<string>('')
 
+// New: Reactive ref for manual text input
+const manualText = ref<string>('')
+
 // Control modal visibility for PDF preview.
 const isPreviewVisible = ref(false)
 
@@ -19,8 +22,10 @@ const emit = defineEmits<{ (e: 'submit', parsedText: string): void }>()
 // Reference to the hidden file input.
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// Disable the submit button if no file is selected.
-const isSubmitDisabled = computed(() => pdfFile.value === null)
+// Enable submission if a PDF is selected OR manual text is non-empty.
+const isSubmitDisabled = computed(() =>
+  pdfFile.value === null && manualText.value.trim() === ''
+)
 
 function triggerFileInput() {
   fileInput.value?.click()
@@ -43,7 +48,8 @@ function openPreview() {
     console.error("No PDF file selected.")
     return
   }
-  parsePDF(pdfFile.value);
+  // Parse PDF for preview (you may or may not want to use its result here)
+  parsePDF(pdfFile.value)
   isPreviewVisible.value = true
 }
 
@@ -115,24 +121,44 @@ async function parsePDF(file: File): Promise<string> {
 
 async function handleSubmit() {
   try {
-    isLoading.value = true
-    if (!pdfFile.value) {
-      console.error("No PDF file selected.")
+    isLoading.value = true;
+    console.log(manualText.value.trim());
+    if (!pdfFile.value && !manualText.value.trim()) {
+      console.error("No PDF file or manual text provided.");
       return
     }
-    const parsedText = await parsePDF(pdfFile.value)
-    const mem0Client = useMem0Client()
+    const mem0Client = useMem0Client();
+    if (!mem0Client) {
+      console.error('Mem0 client is not available, cannot save to Mem0');
+      return;
+    }
     const saveToMem0: (text: string) => Promise<any> =
       mem0Client?.saveToMem0 ||
       (async (text: string) => {
         console.error('Mem0 client is not available, cannot save to Mem0')
-      })
-    await saveToMem0(parsedText)
-    emit('submit', parsedText)
+      });
+
+    let results: string[] = [];
+
+    // If a PDF file is provided, parse and save it.
+    if (pdfFile.value) {
+      const parsedText = await parsePDF(pdfFile.value);
+      await saveToMem0(parsedText);
+      results.push(parsedText);
+    }
+    // If manual text is provided, save it as well.
+    if (manualText.value.trim()) {
+      const manual = manualText.value;
+      await saveToMem0(manual);
+      results.push(manual);
+    }
+
+    // Emit the combined result (or you could emit separately as needed)
+    emit('submit', results.join("\n\n"));
   } catch (error) {
-    console.error('Error submitting resume:', error)
+    console.error('Error submitting resume or text:', error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 </script>
@@ -140,10 +166,11 @@ async function handleSubmit() {
 <template>
   <UCard>
     <template #header>
-      <h2 class="font-bold">1. Submit Your Resume (PDF)</h2>
+      <h2 class="font-bold">1. Submit Your Resume (PDF or Text)</h2>
     </template>
 
     <div class="flex flex-col gap-2">
+      <!-- PDF Upload Field -->
       <UFormField label="Upload PDF" required>
         <!-- Hidden file input -->
         <input
@@ -161,12 +188,23 @@ async function handleSubmit() {
         <span v-if="pdfFile" class="ml-2 text-sm">{{ pdfFile.name }}</span>
       </UFormField>
 
-      <!-- Show "View PDF" button only after a file is selected -->
+      <!-- Optional: View PDF button -->
       <div v-if="pdfFile">
         <UButton variant="outline" @click="openPreview">
           View PDF
         </UButton>
       </div>
+
+      <!-- New: Manual Text Input Field -->
+      <UFormField class="pt-2.5" label="Or enter something about yourself manually">
+        <UTextarea
+          class="w-full"
+          v-model="manualText"
+          :rows="8"
+          placeholder="Eg. Paste your resume here..."
+          required
+        />
+      </UFormField>
     </div>
 
     <template #footer>
