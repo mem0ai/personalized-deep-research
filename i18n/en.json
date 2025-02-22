@@ -30,7 +30,7 @@
         },
         "mem0": {
           "title": "Mem0",
-          "description": "The memory layer for your AI apps. Get one API key at {0}."
+          "description": "The memory layer for your AI apps. Get an API key from {0}."
         }
       }
     },

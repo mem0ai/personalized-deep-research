@@ -1,6 +1,6 @@
 <template>
   <aside :class="asideClasses">
-    <div class="sidebar-inner flex flex-col h-full">
+    <div class="sidebar-inner flex flex-col border-l border-gray-200 dark:border-[#ffffff55] h-full">
       <!-- Collapse toggle button -->
       <div
         class="toggle-container absolute inset-x-0 top-1/2 -translate-y-1/2 -left-4 z-20"
@@ -29,7 +29,7 @@
       </div>
   
       <!-- Only show content when not collapsed -->
-      <div v-if="!isCollapsed" class="flex flex-col flex-1 max-h-full border border-gray-200 dark:border-[#ffffff55]">
+      <div v-if="!isCollapsed" class="flex flex-col flex-1 max-h-full border border-l-0 border-gray-200 dark:border-[#ffffff55]">
         <!-- Header -->
         <div class="sidebar-header flex justify-between items-center p-2 pl-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex flex-1 items-center gap-2">

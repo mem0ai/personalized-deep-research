@@ -93,7 +93,9 @@
               placeholder="Enter your Mem0 API key"
             />
             <template #help>
-              {{ $t('settings.ai.providers.mem0.description'), { link: 'https://mem0.ai' } }}
+              <span
+                v-html="$t('settings.ai.providers.mem0.description', ['<a href=\'https://app.mem0.ai/dashboard\' target=\'_blank\' class=\'text-blue-500 underline\'>Mem0</a>'])"
+              ></span>
             </template>
           </UFormField>
 
