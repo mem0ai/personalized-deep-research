@@ -10,15 +10,47 @@
 /* Then import "@nuxt/ui": */
 @import '@nuxt/ui';
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
+
 :root {
   --ui-primary: #287cff;
 }
 
 .dark {
   --ui-bg: #18181b;
-  --ui-border: #ffffff55;
+  --ui-border: #364153;
 }
 
 body {
   overflow-y: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Invisible track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5); /* Dark thumb */
+  border-radius: 3px;
+  border: 1px solid transparent; /* Optional border for spacing */
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5); /* Light thumb for dark mode */
+}
+
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
 }
