@@ -141,7 +141,6 @@
 
   // Responsive state
   const isMobileSidebarOpen = ref(false)
-  const sidebarWidth = ref(0) // Will be updated based on screen size
 
   const form = ref<ResearchInputData>({
     query: '',
@@ -180,6 +179,9 @@
   // A reactive trigger for the sidebar refresh (pass as prop)
   const sidebarTrigger = ref(false)
   const memoryFetchTrigger = ref(false)
+
+  // This reactive variable holds the current width of the sidebar (in pixels)
+  const sidebarWidth = ref(40) // default collapsed width
 
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width

@@ -41,8 +41,30 @@ export function useMem0Client() {
     }
   }
 
+  const updateMemory = async (memoryId: string, text: string) => {
+    try {
+      const result = await client.update(memoryId, text, { user_id: 'resume' })
+      return result
+    } catch (error) {
+      console.error('Error updating memory:', error)
+      throw error
+    }
+  }
+
+  const deleteMemory = async (memoryId: string) => {
+    try {
+      const result = await client.delete(memoryId)
+      return result
+    } catch (error) {
+      console.error('Error deleting memory:', error)
+      throw error
+    }
+  }
+
   return {
     saveToMem0,
-    getAllMemories
+    getAllMemories,
+    updateMemory,
+    deleteMemory
   }
 }
