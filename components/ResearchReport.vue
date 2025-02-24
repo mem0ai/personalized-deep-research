@@ -246,7 +246,7 @@
     <div
       v-if="reportContent"
       id="report-content"
-      class="prose prose-sm max-w-none break-words p-6 bg-gray-50 dark:bg-gray-800 dark:prose-invert dark:text-white rounded-lg shadow"
+      class="prose prose-sm max-w-none break-words p-6 bg-gray-50 dark:bg-zinc-800 dark:prose-invert dark:text-white rounded-lg shadow"
       v-html="reportHtml"
     />
     <div v-else>

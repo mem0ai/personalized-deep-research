@@ -4,12 +4,12 @@
       <p class="mb-2">
         Make changes to your memory here. Click save when you're done.
       </p>
-      <!-- Simple input for editing the memory text -->
-      <UInput v-model="editedText" class="w-full" />
+      <!-- UTextarea now uses computedRows for its rows prop -->
+      <UTextarea v-model="editedText" class="w-full" :rows="computedRows" />
     </template>
     <template #footer>
       <div class="flex justify-end gap-2 w-full">
-        <UButton color="error" @click="deleteMemory">Delete</UButton>
+        <UButton variant="outline" color="primary" @click="deleteMemory">Delete</UButton>
         <UButton color="primary" @click="saveMemory">Save Changes</UButton>
       </div>
     </template>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch, computed, defineProps, defineEmits } from 'vue'
 
 interface Memory {
   id: string;
@@ -34,6 +34,15 @@ const emit = defineEmits<{
 
 const isOpen = ref(false)
 const editedText = ref('')
+
+// Compute rows based on the sentence length when the modal is initialized.
+const computedRows = computed(() => {
+  const len = editedText.value.length
+  if (len < 100) return 2
+  if (len < 150) return 3
+  if (len < 200) return 4
+  return 5
+})
 
 // When the memory prop changes, update local state and open the modal
 watch(
@@ -58,7 +67,7 @@ function saveMemory() {
 }
 
 function deleteMemory() {
-  if (props.memory) {
+  if (props.memory && window.confirm("Are you sure you want to delete this memory?")) {
     emit('deleteMemory', props.memory.id)
     isOpen.value = false
   }
