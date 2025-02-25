@@ -138,9 +138,19 @@
               </div>
             </div>
           </div>
-          <p v-else class="mt-4 text-center text-gray-500">
-            No memories found. Your memories will appear here.
-          </p>
+          <div v-else class="flex flex-col items-center justify-center h-full">
+            <div class="text-center p-4">
+              <p class="dark:text-gray-300 mb-4">
+                No memories found. Your memories will appear here.
+              </p>
+              <button
+                @click="openConfig"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Configure Mem0 API
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -154,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, watch, nextTick, defineEmits, defineProps } from 'vue'
+  import { ref, computed, onMounted, watch, nextTick, defineEmits, defineProps, onUnmounted } from 'vue'
   import { useMem0Client } from '../lib/mem0'
   import EditMemoryModal from './EditMemoryModal.vue'
 
@@ -176,10 +186,11 @@
 
   const emit = defineEmits<{ 
     (e: 'collapse-change', width: number): void,
-    (e: 'mobile-close'): void  // New event to notify parent when mobile sidebar is closed
+    (e: 'mobile-close'): void,  // New event to notify parent when mobile sidebar is closed
+    (e: 'open-config'): void    // New event to open config
   }>()
 
-  const isCollapsed = ref(true)
+  const isCollapsed = ref(false)
   const isMobileView = ref(false)
   const isLoading = ref(false)
   const memories = ref<Memory[]>([])
@@ -189,6 +200,11 @@
 
   const { config } = useConfigStore()
   const getUserId = (): string => 'dummyUserId'
+
+  // Function to emit the open config event
+  const openConfig = () => {
+    emit('open-config')
+  }
 
   // Update window width on resize
   const updateWindowWidth = () => {
@@ -206,16 +222,12 @@
 
   async function fetchMemories() {
     isLoading.value = true
-    const isFirstFetch = memories.value.length === 0
     try {
       const mem0Client = useMem0Client()
       if (!mem0Client) {
         memories.value = []
       } else {
         memories.value = await mem0Client.getAllMemories()
-        if (isFirstFetch && memories.value.length > 0 && !isMobileView.value) {
-          toggleSidebar();
-        }
       }
     } catch (error) {
       console.error('Error fetching memories:', error)

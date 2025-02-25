@@ -17,7 +17,10 @@ const manualText = ref<string>('')
 const isPreviewVisible = ref(false)
 
 const isLoading = ref(false)
-const emit = defineEmits<{ (e: 'submit', parsedText: string): void }>()
+const emit = defineEmits<{
+  (e: 'submitForm'): void;
+  (e: 'openConfig'): void;
+}>()
 
 // Reference to the hidden file input.
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -130,6 +133,7 @@ async function handleSubmit() {
     const mem0Client = useMem0Client();
     if (!mem0Client) {
       console.error('Mem0 client is not available, cannot save to Mem0');
+      emit('openConfig');
       return;
     }
     const saveToMem0: (text: string) => Promise<any> =
@@ -154,7 +158,7 @@ async function handleSubmit() {
     }
 
     // Emit the combined result (or you could emit separately as needed)
-    emit('submit', results.join("\n\n"));
+    emit('submitForm');
   } catch (error) {
     console.error('Error submitting resume or text:', error);
   } finally {
@@ -171,7 +175,7 @@ async function handleSubmit() {
 
     <div class="flex flex-col gap-2">
       <!-- PDF Upload Field -->
-      <UFormField label="Upload PDF" required>
+      <UFormField label="Upload PDF">
         <!-- Hidden file input -->
         <input
           ref="fileInput"
@@ -200,7 +204,7 @@ async function handleSubmit() {
         <UTextarea
           class="w-full"
           v-model="manualText"
-          :rows="8"
+          :rows="4"
           placeholder="Eg. Paste your resume here..."
           required
         />
