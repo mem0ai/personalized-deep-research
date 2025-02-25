@@ -304,7 +304,7 @@
       const index = memories.value.findIndex((m) => m.id === updated.id)
       if (index !== -1) {
         const mem0Client = useMem0Client()
-        if (mem0Client) {
+        if (mem0Client && updated.memory) {
           await mem0Client.updateMemory(updated.id, updated.memory)
         }
         memories.value[index] = updated
@@ -314,7 +314,11 @@
     }
   }
 
-  function handleMemoryDelete(id: string) {
+  async function handleMemoryDelete(id: string) {
+    const mem0Client = useMem0Client()
+    if (mem0Client) {
+      await mem0Client.deleteMemory(id)
+    }
     memories.value = memories.value.filter((m) => m.id !== id)
     selectedMemory.value = null
   }
