@@ -1,4 +1,4 @@
-import MemoryClient from '~/mem0'
+import MemoryClient from 'mem0ai'
 import { useRuntimeConfig } from '#app'
 
 // Create a composable to handle Mem0 client initialization
@@ -43,7 +43,8 @@ export function useMem0Client() {
 
   const updateMemory = async (memoryId: string, text: string) => {
     try {
-      const result = await client.update(memoryId, text, { user_id: 'resume' })
+      console.log('Updating memory:', memoryId, text)
+      const result = await client.update(memoryId, text)
       return result
     } catch (error) {
       console.error('Error updating memory:', error)
@@ -61,10 +62,23 @@ export function useMem0Client() {
     }
   }
 
+  const deleteAllMemories = async () => {
+    try {
+      const memories = await client.getAll({ user_id: 'resume' })
+      memories.forEach(async (memory) => {
+        await client.delete(memory.id)
+      })
+    } catch (error) {
+      console.error('Error deleting memories:', error)
+      throw error
+    }
+  }
+
   return {
     saveToMem0,
     getAllMemories,
     updateMemory,
-    deleteMemory
+    deleteMemory,
+    deleteAllMemories,
   }
 }
