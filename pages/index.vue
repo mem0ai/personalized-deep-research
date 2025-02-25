@@ -81,7 +81,7 @@
               </UButton>
             </i18n-t>
 
-            <TextForm @submit="onTextFormSubmit" />
+            <TextForm @submit-form="onTextFormSubmit" @open-config="openConfigManager" />
             <ResearchForm
               :is-loading-feedback="!!feedbackRef?.isLoading"
               ref="formRef"
@@ -105,6 +105,7 @@
         :is-mobile-open="isMobileSidebarOpen"
         @collapse-change="updateSidebarWidth"
         @mobile-close="closeMobileSidebar"
+        @open-config="openConfigManager"
       />
     </div>
     <AutoUpdateToast />
@@ -181,7 +182,7 @@
   const memoryFetchTrigger = ref(false)
 
   // This reactive variable holds the current width of the sidebar (in pixels)
-  const sidebarWidth = ref(40) // default collapsed width
+  const sidebarWidth = ref(384) // default collapsed width
 
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width
@@ -195,9 +196,12 @@
     isMobileSidebarOpen.value = false
   }
 
-  function onTextFormSubmit(resume: string) {
-    // Toggle so that MemorySidebar's watcher detects a change.
+  function onTextFormSubmit() {
     memoryFetchTrigger.value = !memoryFetchTrigger.value
+  }
+
+  function openConfigManager() {
+    configManagerRef.value?.show()
   }
 
   // Initialize on mount
@@ -205,7 +209,7 @@
     // Set initial sidebar width based on screen size
     if (window.innerWidth >= 1024) {
       // Desktop - start with collapsed sidebar (40px)
-      updateSidebarWidth(40)
+      updateSidebarWidth(384)
     } else {
       // Mobile - no sidebar margin initially
       updateSidebarWidth(0)
