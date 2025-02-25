@@ -24,6 +24,10 @@
   --ui-border: #364153;
 }
 
+.dark button {
+  color: white;
+}
+
 body {
   overflow-y: hidden;
 }

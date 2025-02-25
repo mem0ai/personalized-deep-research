@@ -108,7 +108,6 @@
         @open-config="openConfigManager"
       />
     </div>
-    <AutoUpdateToast />
   </div>
 </template>
 
