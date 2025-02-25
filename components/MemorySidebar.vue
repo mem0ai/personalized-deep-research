@@ -196,7 +196,7 @@
   const memories = ref<Memory[]>([])
   const selectedMemory = ref<Memory | null>(null)
   const userId = ref<string>('')
-  const windowWidth = ref(process.client ? window.innerWidth : 1024)
+  const windowWidth = ref(window ? window.innerWidth : 1024)
 
   const { config } = useConfigStore()
   const getUserId = (): string => 'dummyUserId'
@@ -239,8 +239,15 @@
 
   const deleteAllMemories = async () => {
     isLoading.value = true
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    memories.value = []
+    try{
+      const mem0Client = useMem0Client()
+      if (mem0Client) {
+        await mem0Client.deleteAllMemories()
+        memories.value = []
+      }
+    } catch (error) {
+      console.error('Error deleting memories:', error)
+    }
     isLoading.value = false
   }
 
@@ -292,9 +299,19 @@
     }
   }
 
-  function handleMemoryUpdate(updated: Memory) {
-    memories.value = memories.value.map((m) => m.id === updated.id ? updated : m)
-    selectedMemory.value = null
+  async function handleMemoryUpdate(updated: Memory) {
+    try {
+      const index = memories.value.findIndex((m) => m.id === updated.id)
+      if (index !== -1) {
+        const mem0Client = useMem0Client()
+        if (mem0Client) {
+          await mem0Client.updateMemory(updated.id, updated.memory)
+        }
+        memories.value[index] = updated
+      }
+    } catch (error) {
+      console.error('Error updating memory:', error)
+    }
   }
 
   function handleMemoryDelete(id: string) {
