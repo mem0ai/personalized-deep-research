@@ -75,8 +75,8 @@ importers:
         specifier: ^15.0.7
         version: 15.0.7
       mem0ai:
-        specifier: ^1.0.36
-        version: 1.0.36(@rrweb/types@2.0.0-alpha.17)(@types/node@22.13.4)(typescript@5.7.3)
+        specifier: 1.0.39
+        version: 1.0.39(@rrweb/types@2.0.0-alpha.17)(@types/node@22.13.4)(typescript@5.7.3)
       nuxt:
         specifier: ^3.15.4
         version: 3.15.4(@parcel/watcher@2.5.1)(@types/node@22.13.4)(db0@0.2.4)(eslint@9.20.1(jiti@2.4.2))(ioredis@5.5.0)(lightningcss@1.29.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.34.8)(terser@5.39.0)(typescript@5.7.3)(vite@6.1.1(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.39.0)(yaml@2.7.0))(yaml@2.7.0)
@@ -92,9 +92,6 @@ importers:
       posthog-js:
         specifier: ^1.223.3
         version: 1.223.3(@rrweb/types@2.0.0-alpha.17)
-      posthog-node:
-        specifier: ^4.7.0
-        version: 4.7.0
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -3061,9 +3058,14 @@ packages:
   mdn-data@2.12.2:
     resolution: {integrity: sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==}
 
-  mem0ai@1.0.36:
-    resolution: {integrity: sha512-SAEKSUicGJ2M7NzjlwZWxO8dw/RAl2bKlU1klFnkI/Bb1SY9+hPAmmk3jihPK/H3okLoaiCjFc6i7bUlLP1tCw==}
+  mem0ai@1.0.39:
+    resolution: {integrity: sha512-bn6IdIdsGjfpd85ef4yDfCTXTeOke0noHsxxvZoYMkoz5l+3BCaVu7Unqgm3tZkbO/KbAkU1UOrjIke7NOc0Pw==}
     engines: {node: '>=18'}
+    peerDependencies:
+      posthog-node: ^4.0.0
+    peerDependenciesMeta:
+      posthog-node:
+        optional: true
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -3621,10 +3623,6 @@ packages:
     resolution: {integrity: sha512-ZQTc17M21IzkQmECJa2Xjont4tZrvIn252uGT3sTfmahTqZoW4j+kBj4eOJt9SNR6hOheFNkg7MSiI/rA6FaDA==}
     peerDependencies:
       '@rrweb/types': 2.0.0-alpha.17
-
-  posthog-node@4.7.0:
-    resolution: {integrity: sha512-RgdUKSW8MfMOkjUa8cYVqWndNjPePNuuxlGbrZC6z1WRBsVc6TdGl8caidmC10RW8mu/BOfmrGbP4cRTo2jARg==}
-    engines: {node: '>=15.0.0'}
 
   preact@10.26.2:
     resolution: {integrity: sha512-0gNmv4qpS9HaN3+40CLBAnKe0ZfyE4ZWo5xKlC1rVrr0ckkEvJvAQqKaHANdFKsGstoxrY4AItZ7kZSGVoVjgg==}
@@ -7959,13 +7957,13 @@ snapshots:
 
   mdn-data@2.12.2: {}
 
-  mem0ai@1.0.36(@rrweb/types@2.0.0-alpha.17)(@types/node@22.13.4)(typescript@5.7.3):
+  mem0ai@1.0.39(@rrweb/types@2.0.0-alpha.17)(@types/node@22.13.4)(typescript@5.7.3):
     dependencies:
       axios: 1.7.9
       fix-tsup-cjs: 1.2.0
-      posthog-js: 1.223.3(@rrweb/types@2.0.0-alpha.17)
-      posthog-node: 4.7.0
       ts-node: 10.9.2(@types/node@22.13.4)(typescript@5.7.3)
+    optionalDependencies:
+      posthog-js: 1.223.3(@rrweb/types@2.0.0-alpha.17)
     transitivePeerDependencies:
       - '@rrweb/types'
       - '@swc/core'
@@ -8682,12 +8680,6 @@ snapshots:
       fflate: 0.4.8
       preact: 10.26.2
       web-vitals: 4.2.4
-
-  posthog-node@4.7.0:
-    dependencies:
-      axios: 1.7.9
-    transitivePeerDependencies:
-      - debug
 
   preact@10.26.2: {}
 
