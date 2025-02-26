@@ -19,9 +19,19 @@
   --ui-primary: #287cff;
 }
 
+highlight {
+  color: #ffffff;
+  background: #e91e65;
+  padding: 2px;
+}
+
 .dark {
   --ui-bg: #18181b;
   --ui-border: #364153;
+}
+
+.dark button {
+  color: white;
 }
 
 body {

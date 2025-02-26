@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, defineProps, defineEmits } from 'vue'
-import { useMem0Client } from '~/lib/mem0'
 
 interface Memory {
   id: string;
@@ -44,7 +43,6 @@ const computedRows = computed(() => {
   if (len < 200) return 4
   return 5
 })
-// const { updateMemory, deleteMemory: deleteMemoryFromClient } = useMem0Client()
 
 // When the memory prop changes, update local state and open the modal
 watch(
@@ -63,14 +61,11 @@ watch(
 async function saveMemory() {
   if (props.memory) {
     try {
-      // First update the memory in Mem0
-      // await updateMemory(props.memory.id, editedText.value)
       // Then emit the update event with the modified memory
       emit('updateMemory', { ...props.memory, memory: editedText.value })
       isOpen.value = false
     } catch (error) {
       console.error('Error updating memory:', error)
-      // You might want to add error handling UI here
     }
   }
 }
@@ -78,7 +73,6 @@ async function saveMemory() {
 async function deleteMemory() {
   if (props.memory && window.confirm("Are you sure you want to delete this memory?")) {
     try {
-      // await deleteMemoryFromClient(props.memory.id)
       emit('deleteMemory', props.memory.id)
       isOpen.value = false
     } catch (error) {

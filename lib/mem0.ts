@@ -22,7 +22,7 @@ export function useMem0Client() {
     ]
 
     try {
-      const result = await client.add(messages, { user_id: 'resume' })
+      const result = await client.add(messages, { user_id: 'deep-research-agent-mem0' })
       return result
     } catch (error) {
       console.error('Error saving to Mem0:', error)
@@ -32,7 +32,7 @@ export function useMem0Client() {
 
   const getAllMemories = async () => {
     try {
-      const memories = await client.getAll({ user_id: 'resume' })
+      const memories = await client.getAll({ user_id: 'deep-research-agent-mem0' })
       console.log(memories)
       return memories
     } catch (error) {
@@ -45,6 +45,7 @@ export function useMem0Client() {
     try {
       console.log('Updating memory:', memoryId, text)
       const result = await client.update(memoryId, text)
+      console.log(result)
       return result
     } catch (error) {
       console.error('Error updating memory:', error)
@@ -64,7 +65,7 @@ export function useMem0Client() {
 
   const deleteAllMemories = async () => {
     try {
-      const memories = await client.getAll({ user_id: 'resume' })
+      const memories = await client.getAll({ user_id: 'deep-research-agent-mem0' })
       memories.forEach(async (memory) => {
         await client.delete(memory.id)
       })
