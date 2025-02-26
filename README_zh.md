@@ -1,106 +1,74 @@
-# Deep Research Web
+# 个性化深度研究
 
-本项目是 https://github.com/dzhng/deep-research 的可视化版本，并做了一些改进。
+[English](README.md) | [中文](README_zh.md)
 
-特色：
+这个仓库是 [deep-research-web-ui](https://github.com/AnotiaWang/deep-research-web-ui) 的一个分支，集成了 Mem0 的个性化记忆以及其他一些改进。
 
-- 🚀 **隐私安全**：所有配置和 API 请求均在浏览器端完成
-- 🕙 **实时反馈**：流式传输 AI 响应并在界面实时展示
-- 🌳 **搜索可视化**：使用树状结构展示研究过程，支持使用英文搜索词
-- 📄 **支持导出 PDF**：将最终研究报告导出为 Markdown 和 PDF 格式
-- 🤖 **多模型支持**：底层使用纯提示词而非结构化输出等新特性，兼容更多大模型供应商
+功能：
 
-当前支持的供应商：
+- 🔍 **个性化**：利用 Mem0 的个性化记忆来增强 AI 驱动的在线探索过程，确保研究过程符合您的独特见解和经验。
+- 🕙 **实时反馈**：实时流式传输 AI 响应，并在 UI 中反映结果。
+- 🌳 **搜索可视化**：通过树状结构展示研究过程，支持多语言搜索。
+- 📄 **导出为 PDF**：将最终研究报告导出为 Markdown 或 PDF 格式。
+- 🐳 **Docker 支持**：通过一条命令在您的环境中部署。
+- 🔒 **安全**：所有配置、API 请求等都保留在本地浏览器中。
 
-- AI 服务：OpenAPI 每月 1000 次免费搜索）、Firecrawl
+如果您喜欢这个项目，请给它一个 🌟 星标！
 
-喜欢本项目请点 ⭐ 收藏！ <video width="500" src="https://github.com/user-attachments/assets/8f9baa43-a74e-4613-aebb-1bcc29a686f0" controls></video>
+## 如何使用
 
-## 近期更新
+在线演示：<a href="https://deep-research.mem0.ai" target="_blank">https://deep-research.mem0.ai</a>
 
-25/02/17
+### 自托管
 
-- 支持设置模型上下文长度
-- 支持限制联网搜索的并发数
+一键部署到 [EdgeOne Pages](https://edgeone.ai/products/pages):
 
-25/02/16
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=https://github.com/mem0ai/personalized-deep-research&from=github)
 
-- 使用 VueFlow 重构了搜索可视化功能
-- 一些样式和 bug 修复
-
-25/02/15
-
-- AI 提供商支持 DeepSeek，OpenRouter 和 Ollama，联网搜索支持 Firecrawl
-- 支持检查项目更新
-- 支持重新生成报告
-- 一般性优化和改进
-
-25/02/14
-
-- 支持 DeepSeek R1 等思维链模型
-- 改进了模型兼容性，改进异常处理
-
-25/02/13
-
-- 大幅缩减了网页体积
-- 支持配置搜索时使用的语言
-- 支持 Docker 部署
-- 修复“导出 PDF”不可用的问题
-
-## 使用指南
-
-在线演示：<a href="https://deep-research.ataw.top" target="_blank">https://deep-research.ataw.top</a>
-
-### 自托管部署
-
-使用 [EdgeOne Pages](https://edgeone.ai/products/pages) 一键部署：
-
-[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=https://github.com/AnotiaWang/deep-research-web-ui&from=github)
-
-Docker 部署（使用现成镜像）：
+使用预构建的 Docker 镜像：
 
 ```bash
-docker run -p 3000:3000 --name deep-research-web -d anotia/deep-research-web:latest
+docker run -p 3000:3000 --name personalized-deep-research -d mem0ai/personalized-deep-research:latest
 ```
 
-Docker 部署（自行打包镜像）：
+使用自构建的 Docker 镜像：
 
-```bash
-git clone https://github.com/AnotiaWang/deep-research-web-ui
-cd deep-research-web-ui
-docker build -t deep-research-web .
-docker run -p 3000:3000 --name deep-research-web -d deep-research-web
+```
+git clone https://github.com/mem0ai/personalized-deep-research
+cd personalized-deep-research
+docker build -t personalized-deep-research .
+docker run -p 3000:3000 --name personalized-deep-research -d personalized-deep-research
 ```
 
----
+## 开发
 
-## 开发指南
+### 设置
 
-### 环境配置
-
-安装依赖：
+确保安装依赖项：
 
 ```bash
 pnpm install
 ```
 
-### 开发模式
+## 开发服务器
 
-启动本地开发服务器（访问 http://localhost:3000）：
+在 `http://localhost:3000` 启动开发服务器：
 
 ```bash
 pnpm dev
 ```
 
-### 生产构建
+## 生产
 
-SSR 模式：
+为生产环境构建应用：
+
+如果您想部署 SSR 应用：
 
 ```bash
 pnpm build
 ```
 
-SSG 模式（静态部署）：
+如果您想部署静态的 SSG 应用：
 
 ```bash
 pnpm generate
@@ -112,8 +80,8 @@ pnpm generate
 pnpm preview
 ```
 
-详见 [部署文档](https://nuxt.com/docs/getting-started/deployment)。
+更多部署信息，请查看 [部署文档](https://nuxt.com/docs/getting-started/deployment)。
 
-## 许可协议
+## 许可证
 
-MIT 协议
+MIT

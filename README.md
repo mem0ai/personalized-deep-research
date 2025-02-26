@@ -1,84 +1,44 @@
-# Deep Research Web UI
+# Personalized Deep Research
 
-[English | [中文](README_zh.md)]
+[English](README.md) | [中文](README_zh.md)
 
-This is a web UI for https://github.com/dzhng/deep-research, with several improvements and fixes.
+This repository is a fork of [deep-research-web-ui](https://github.com/AnotiaWang/deep-research-web-ui), with Mem0's personalized memories and several other improvements.
 
 Features:
 
-- 🚀 **Safe & Secure**: Everything (config, API requests, ...) stays in your browser locally
+- 🔍 **Personalized**: Uses Mem0's personalized memories to enhance AI-driven online exploration with personalized memories, ensuring the research process aligns with your unique insights and experiences.
 - 🕙 **Realtime feedback**: Stream AI responses and reflect on the UI in real-time
 - 🌳 **Search visualization**: Shows the research process using a tree structure. Supports searching in different languages
 - 📄 **Export as PDF**: Export the final research report as Markdown / PDF
-- 🤖 **Supports more models**: Uses plain prompts instead of newer, less widely supported features like Structured Outputs. This ensures to work with more providers that haven't caught up with the latest OpenAI capabilities.
 - 🐳 **Docker support**: Deploy in your environment in one-line command
-
-Currently available providers:
-
-- AI: OpenAI compatible, DeepSeek, OpenRouter, Ollama
-- Web Search: Tavily (1000 free credits / month), Firecrawl
+- 🔒 **Secure**: Everything (config, API requests, ...) stays in your browser locally
 
 Please give a 🌟 Star if you like this project!
 
-<video width="500" src="https://github.com/user-attachments/assets/8f9baa43-a74e-4613-aebb-1bcc29a686f0" controls></video>
-
-## Recent updates
-
-25/02/17
-
-- Added: set rate limits for web search
-- Added: set context length for AI model
-
-25/02/16
-
-- Refactored the search visualization using VueFlow
-- Style & bug fixes
-
-25/02/15
-
-- Added AI providers DeepSeek, OpenRouter and Ollama; Added web search provider Firecrawl
-- Supported checking project updates
-- Supported regenerating reports
-- General fixes
-
-25/02/14
-
-- Supported reasoning models like DeepSeek R1
-- Improved compatibility with more models & error handling
-
-25/02/13
-
-- Significantly reduced bundle size
-- Supported searching in different languages
-- Added Docker support
-- Fixed "export as PDF" issues
-
 ## How to use
 
-Live demo: <a href="https://deep-research.ataw.top" target="_blank">https://deep-research.ataw.top</a>
+Live demo: <a href="https://deep-research.mem0.ai" target="_blank">https://deep-research.mem0.ai</a>
 
 ### Self hosted
 
 One-click deploy with [EdgeOne Pages](https://edgeone.ai/products/pages):
 
-[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=https://github.com/AnotiaWang/deep-research-web-ui&from=github)
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=https://github.com/mem0ai/personalized-deep-research&from=github)
 
 Use pre-built Docker image:
 
 ```bash
-docker run -p 3000:3000 --name deep-research-web -d anotia/deep-research-web:latest
+docker run -p 3000:3000 --name personalized-deep-research -d mem0ai/personalized-deep-research:latest
 ```
 
 Use self-built Docker image:
 
 ```
-git clone https://github.com/AnotiaWang/deep-research-web-ui
-cd deep-research-web-ui
-docker build -t deep-research-web .
-docker run -p 3000:3000 --name deep-research-web -d deep-research-web
+git clone https://github.com/mem0ai/personalized-deep-research
+cd personalized-deep-research
+docker build -t personalized-deep-research .
+docker run -p 3000:3000 --name personalized-deep-research -d personalized-deep-research
 ```
-
----
 
 ## Developing
 

@@ -65,11 +65,9 @@
                 <UButton
                   class="!p-0 text-blue-500 underline"
                   variant="link"
-                  href="https://github.com/dzhng/deep-research"
+                  href="https://github.com/AnotiaWang/deep-research-web-ui"
                   target="_blank"
-                >
-                  dzhng/deep-research
-                </UButton>
+                >deep-research-web-ui</UButton>
               </template>
 
               <template v-slot:mem0>
@@ -78,9 +76,7 @@
                   variant="link"
                   href="https://mem0.ai"
                   target="_blank"
-                >
-                  mem0
-                </UButton>
+                >Mem0's fork</UButton>
               </template>
             </i18n-t>
 

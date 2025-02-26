@@ -170,7 +170,7 @@ async function handleSubmit() {
 <template>
   <UCard>
     <template #header>
-      <h2 class="font-bold">1. Create Memories - Upload Resume For Personalization (PDF or Text)</h2>
+      <h2 class="font-bold">1. Begin Your Journey - Upload Your Resume for Personalization (pdf or text)</h2>
     </template>
 
     <div class="flex flex-col gap-2">
@@ -204,7 +204,7 @@ async function handleSubmit() {
         <UTextarea
           class="w-full"
           v-model="manualText"
-          :rows="4"
+          :rows="3"
           placeholder="Eg. Paste your resume here..."
           required
         />
