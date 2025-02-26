@@ -4,7 +4,7 @@
     <div class="lg:hidden sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <h1 class="text-xl font-bold flex items-center gap-1">
-          Deep Research
+          Personalized Deep Research
         </h1>
         <div class="flex items-center gap-2">
           <button 
@@ -30,7 +30,7 @@
             <!-- Desktop Header - hidden on mobile -->
             <div class="hidden lg:flex flex-col sm:flex-row gap-2">
               <h1 class="text-3xl font-bold text-center mb-2">
-                Deep Research
+                Personalized Deep Research
                 <span class="inline-flex gap-1 text-xs text-gray-400 dark:text-gray-500">
                     powered by 
                     <a href="https://mem0.ai" target="_blank" class="inline dark:hidden">
