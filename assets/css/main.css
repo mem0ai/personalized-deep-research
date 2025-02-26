@@ -19,6 +19,12 @@
   --ui-primary: #287cff;
 }
 
+highlight {
+  color: #ffffff;
+  background: #E91E63;
+  padding: 2px;
+}
+
 .dark {
   --ui-bg: #18181b;
   --ui-border: #364153;
