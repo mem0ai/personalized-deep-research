@@ -121,7 +121,7 @@
               class="memory-item p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
               @click="selectMemory(memory)"
             >
-              <div class="memory-content mb-2 text-sm text-gray-800 dark:text-gray-200">
+              <div class="memory-content mb-1 text-sm text-gray-800 dark:text-gray-200">
                 {{ memory.memory }}
               </div>
               <div class="memory-categories flex flex-wrap gap-2 mb-1">
@@ -178,11 +178,11 @@
     updated_at?: any
   }
 
-  const props = defineProps<{ 
-    trigger: boolean, 
-    fetchTrigger: boolean,
-    isMobileOpen?: boolean  // New prop to control mobile sidebar visibility
-  }>()
+  const props = defineProps({
+    trigger: { type: Boolean, required: true },
+    fetchTrigger: { type: Boolean, required: true },
+    isMobileOpen: { type: Boolean, default: false }
+  })
 
   const emit = defineEmits<{ 
     (e: 'collapse-change', width: number): void,

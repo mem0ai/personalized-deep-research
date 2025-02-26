@@ -5,28 +5,14 @@
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <h1 class="text-xl font-bold flex items-center gap-1">
           Deep Research
-          <span class="text-xs text-gray-400 dark:text-gray-500">v{{ version }}</span>
         </h1>
         <div class="flex items-center gap-2">
           <button 
             @click="toggleMobileSidebar" 
-            class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"
             aria-label="Toggle Sidebar"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
+            <UIcon name="i-lucide-brain" size="24" class="inline-flex" />
           </button>
           <ColorModeButton />
         </div>
@@ -36,7 +22,7 @@
     <div class="flex flex-col lg:flex-row">
       <!-- Main Content -->
       <div 
-        class="flex-1 h-screen max-h-screen overflow-y-auto transition-all duration-300" 
+        class="flex-1 h-screen max-h-[calc(100vh-64px)] lg:max-h-screen overflow-y-auto transition-all duration-300" 
         :style="{ marginRight: sidebarWidth + 'px' }"
       >
         <UContainer>
@@ -45,15 +31,20 @@
             <div class="hidden lg:flex flex-col sm:flex-row gap-2">
               <h1 class="text-3xl font-bold text-center mb-2">
                 Deep Research
-                <span class="text-xs text-gray-400 dark:text-gray-500">
-                  v{{ version }}
+                <span class="inline-flex gap-1 text-xs text-gray-400 dark:text-gray-500">
+                    powered by 
+                    <a href="https://mem0.ai" target="_blank" class="inline dark:hidden">
+                      <img src="public/light.svg" alt="Mem0" class="h-4 pb-[2px]" />
+                    </a>
+                    <a href="https://mem0.ai" target="_blank" class="hidden dark:inline">
+                      <img src="public/dark.svg" alt="Mem0" target="_blank" class="h-4 pb-[2px]" />
+                    </a>
                 </span>
               </h1>
               <div class="mx-auto sm:ml-auto sm:mr-0 flex items-center gap-2">
                 <GitHubButton />
                 <ConfigManager ref="configManagerRef" />
                 <ColorModeButton />
-                <LangSwitcher />
               </div>
             </div>
 
@@ -63,7 +54,6 @@
                 <GitHubButton />
                 <ConfigManager ref="configManagerRef" />
               </div>
-              <LangSwitcher />
             </div>
 
             <i18n-t
@@ -71,14 +61,27 @@
               keypath="index.projectDescription"
               tag="p"
             >
-              <UButton
-                class="!p-0"
-                variant="link"
-                href="https://github.com/dzhng/deep-research"
-                target="_blank"
-              >
-                dzhng/deep-research
-              </UButton>
+              <template v-slot:deep-research>
+                <UButton
+                  class="!p-0 text-blue-500 underline"
+                  variant="link"
+                  href="https://github.com/dzhng/deep-research"
+                  target="_blank"
+                >
+                  dzhng/deep-research
+                </UButton>
+              </template>
+
+              <template v-slot:mem0>
+                <UButton
+                  class="!p-0 text-blue-500 underline"
+                  variant="link"
+                  href="https://mem0.ai"
+                  target="_blank"
+                >
+                  mem0
+                </UButton>
+              </template>
             </i18n-t>
 
             <TextForm @submit-form="onTextFormSubmit" @open-config="openConfigManager" />
@@ -88,12 +91,13 @@
               @submit="generateFeedback"
             />
             <ResearchFeedback
+              v-if="currentStep >= 2"
               :is-loading-search="!!deepResearchRef?.isLoading"
               ref="feedbackRef"
               @submit="startDeepSearch"
             />
-            <DeepResearch ref="deepResearchRef" @complete="generateReport" />
-            <ResearchReport ref="reportRef" />
+            <DeepResearch v-if="currentStep >= 3" ref="deepResearchRef" @complete="generateReport" />
+            <ResearchReport v-if="currentStep >= 4" ref="reportRef" />
           </div>
         </UContainer>
       </div>
@@ -139,6 +143,10 @@
   const reportRef = ref<InstanceType<typeof ResearchReport>>()
   const { config } = useConfigStore()
 
+  // Define reactive state for the current step.
+  // 1 = only form visible, 2 = form + feedback, 3 = form + feedback + deep research, 4 = all visible.
+  const currentStep = ref(1)
+
   // Responsive state
   const isMobileSidebarOpen = ref(false)
 
@@ -165,15 +173,27 @@
   provide(researchResultInjectionKey, researchResult)
 
   async function generateFeedback() {
-    feedbackRef.value?.getFeedback()
+    if (currentStep.value === 1) {
+      currentStep.value = 2
+      await nextTick();
+    }
+    await feedbackRef.value?.getFeedback()
   }
 
   async function startDeepSearch() {
-    deepResearchRef.value?.startResearch()
+    if (currentStep.value === 2) {
+      currentStep.value = 3
+      await nextTick();
+    }
+    await deepResearchRef.value?.startResearch()
   }
 
   async function generateReport() {
-    reportRef.value?.generateReport()
+    if (currentStep.value === 3) {
+      currentStep.value = 4
+      await nextTick();
+    }
+    await reportRef.value?.generateReport()
   }
 
   // A reactive trigger for the sidebar refresh (pass as prop)
