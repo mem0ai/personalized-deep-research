@@ -1,5 +1,5 @@
 <template>
-  <aside :class="asideClasses" class="bg-white dark:bg-[#18181b]">
+  <aside v-if="isHydrated" :class="asideClasses" class="bg-white dark:bg-[#18181b]">
     <div class="sidebar-inner flex flex-col border-l border-gray-200 dark:border-gray-700 h-full">
       <!-- Collapse toggle button - Only visible on desktop -->
       <div
@@ -197,6 +197,7 @@
   const selectedMemory = ref<Memory | null>(null)
   const userId = ref<string>('')
   const windowWidth = ref(window ? window.innerWidth : 1024)
+  const isHydrated = ref(false)
 
   const { config } = useConfigStore()
   const getUserId = (): string => 'dummyUserId'
@@ -341,6 +342,7 @@
   })
 
   onMounted(() => {
+    isHydrated.value = true
     updateWindowWidth() // Set initial viewport check
     userId.value = getUserId()
     if (userId.value) {
