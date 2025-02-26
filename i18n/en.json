@@ -4,7 +4,7 @@
   "modelThinkingComplete": "Thinking complete",
   "invalidStructuredOutput": "The model returned content which is incomplete or invalid and cannot be parsed. Try using a bigger or \"smarter\" model.",
   "index": {
-    "projectDescription": "This is a web UI for {mem0}'s fork of {deep-research} that allows AI to search online and dig deeper autonomously to output a research report, adding personalized memory features to it.\n\nThis project features streaming AI responses for realtime feedback, and visualization of the research process using a tree structure, with the personalized references being highlighted in the deep research report.",
+    "projectDescription": "This platform serves as an intelligent research assistant, seamlessly integrating with your expertise and working on your behalf to conduct in-depth research. Built on {mem0}'s fork of {deep-research}, it enhances AI-driven online exploration with personalized memories, ensuring the research process aligns with your unique insights and experiences. \n\nWith real-time streaming AI responses, interactive feedback, and a structured visualization of the research process, this tool refines and deepens your analysis. Personalized references are highlighted throughout the report to help you understand the importance of personalization.",
     "missingConfigTitle": "Config not set",
     "missingConfigDescription": "This project requires you to bring your own API keys."
   },
