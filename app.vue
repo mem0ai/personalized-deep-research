@@ -3,11 +3,13 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <Analytics /> <!-- Add Vercel Analytics here -->
   </UApp>
 </template>
 
 <script setup lang="ts">
   import { zh_cn } from '@nuxt/ui/locale'
+  import { Analytics } from '@vercel/analytics/nuxt'
 
   useHead({
     title: 'Deep Research (powered by mem0)',
