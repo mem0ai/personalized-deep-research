@@ -3,7 +3,7 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <Analytics /> <!-- Add Vercel Analytics here -->
+    <Analytics />
   </UApp>
 </template>
 
