@@ -201,7 +201,7 @@
   const memoryFetchTrigger = ref(false)
 
   // This reactive variable holds the current width of the sidebar (in pixels)
-  const sidebarWidth = ref(384) // default collapsed width
+  const sidebarWidth = ref(0)
 
   function updateSidebarWidth(width: number) {
     sidebarWidth.value = width

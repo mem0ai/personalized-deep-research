@@ -170,7 +170,7 @@ async function handleSubmit() {
 <template>
   <UCard>
     <template #header>
-      <h2 class="font-bold">1. Submit Your Resume (PDF or Text)</h2>
+      <h2 class="font-bold">1. Create Memories - Upload Resume For Personalization (PDF or Text)</h2>
     </template>
 
     <div class="flex flex-col gap-2">
