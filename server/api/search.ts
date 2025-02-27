@@ -1,5 +1,3 @@
-// /server/api/ai/search.ts
-
 import { defineEventHandler, readBody, createError } from 'h3'
 import { tavily } from '@tavily/core'
 import Firecrawl from '@mendable/firecrawl-js'

@@ -346,7 +346,7 @@ export async function deepResearch({
       language,
       searchLanguage,
       memories,
-    })    
+    })
 
     let searchQueries: PartialSearchQuery[] = []
 

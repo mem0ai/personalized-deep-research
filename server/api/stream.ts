@@ -1,10 +1,6 @@
-// /server/api/ai/stream.ts
-
 import { defineEventHandler, readBody, createError } from 'h3'
 import { streamText } from 'ai'
 import { systemPrompt } from '../../lib/prompt'
-import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { createOpenAI } from '@ai-sdk/openai'
 import { sendStream } from 'h3'
 import {
