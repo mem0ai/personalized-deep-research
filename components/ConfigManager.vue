@@ -148,17 +148,15 @@
     if (!config.value.ai.mem0ApiKey) return
     try {
       loadingAiModels.value = true
-      const result: OpenAICompatibleModelsResponse = await $fetch(
-        `https://api.openai.com/v1/models`,
-        {
-          headers: {
-            Authorization: `Bearer ${runtimeConfig.public.OPENAI_API_KEY}`,
-          },
-        }
-      )
-      aiModelOptions.value = result.data
-        .map((m) => m.id)
-        .filter((id) => !id.includes("o3-mini"))
+      aiModelOptions.value = [
+        "gpt-3.5-turbo",
+        "gpt-4",
+        "gpt-4-turbo",
+        "gpt-4o",
+        "gpt-4o-mini",
+        "o1-mini",
+        "o1-preview"
+      ]
       isLoadAiModelsFailed.value = false
 
       // Ensure the current model is in the list.
