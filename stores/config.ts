@@ -8,7 +8,6 @@ export type ConfigAiProvider =
   | 'openrouter'
   | 'deepseek'
   | 'ollama'
-  | 'mem0'
 
 export type ConfigWebSearchProvider = 'tavily' | 'firecrawl'
 
@@ -33,7 +32,7 @@ export interface Config {
 
 function validateConfig(config: Config) {
   const ai = config.ai
-  if (ai.provider === 'mem0' && !ai.mem0ApiKey) return false
+  if (ai.provider === 'openai-compatible' && !ai.mem0ApiKey) return false
   if (typeof ai.contextSize !== 'undefined' && ai.contextSize < 0) return false
 
   return true
