@@ -6,6 +6,7 @@ import { systemPrompt } from '../../lib/prompt'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { createOpenAI } from '@ai-sdk/openai'
+import { sendStream } from 'h3'
 import {
   extractReasoningMiddleware,
   wrapLanguageModel,
@@ -26,13 +27,13 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Use the streaming function to get the response
-    const stream = await streamText({
+    const { textStream } =  streamText({
       model: modelInstance,
       prompt,
       system: systemPrompt(),
     })
-    // Return the stream as the response
-    return stream
+
+    return sendStream(event, textStream);
   } catch (error) {
     console.error('Error calling the AI provider:', error)
     throw createError({ statusCode: 500, message: 'Internal Server Error' })
@@ -68,6 +69,7 @@ const useAiModel = () => {
     })
     model = openai('gpt-3.5-turbo')
   }
+
 
   return wrapLanguageModel({
     model,

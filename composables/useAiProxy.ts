@@ -1,16 +1,22 @@
-// composables/useAiProxy.ts
-
-export async function streamTextFromServer({ prompt }: { prompt: string; }) {
-  // Use the browser fetch API to call the server endpoint.
-  // Note: If you need to support streaming on the client side, you might need to
-  // work with the Response.body stream directly.
-  const response = await fetch('/api/ai/stream', {
+export async function streamTextFromServer({ prompt }: { prompt: string }) {
+  const response = await fetch('/api/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt }),
-  })
+  });
   
-  // Return the readable stream from the response.
-  // You can then pass this stream into your parseStreamingJson logic.
-  return response.body
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  
+  const stream = {
+    async *[Symbol.asyncIterator]() {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        yield { type: 'text', text: decoder.decode(value, { stream: true }) } as const;
+      }
+    },
+  };
+  
+  return stream;
 }
