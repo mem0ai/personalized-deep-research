@@ -156,14 +156,15 @@
           },
         }
       )
-      console.log(`Found ${result.data.length} models for provider OpenAI`)
-      aiModelOptions.value = result.data.map((m) => m.id)
+      aiModelOptions.value = result.data
+        .map((m) => m.id)
+        .filter((id) => !id.includes("o3-mini"))
       isLoadAiModelsFailed.value = false
 
       // Ensure the current model is in the list.
       if (aiModelOptions.value.length) {
         const currentModel = config.value.ai.model
-        if (currentModel && !aiModelOptions.value.includes(currentModel)) {
+        if (currentModel && !currentModel.includes("o3-mini") && !aiModelOptions.value.includes(currentModel)) {
           aiModelOptions.value.unshift(currentModel)
         }
       }
@@ -172,13 +173,12 @@
       isLoadAiModelsFailed.value = true
       aiModelOptions.value = []
     } finally {
-      console.log(config)
-      console.log(runtimeConfig)
       loadingAiModels.value = false
     }
   }, 500)
 
   function createAndSelectAiModel(model: string) {
+    if (!aiModelOptions.value.includes(model)) return
     aiModelOptions.value.push(model)
     config.value.ai.model = model
   }
