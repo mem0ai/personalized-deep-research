@@ -1,3 +1,4 @@
+import { defineEventHandler, readBody, createError } from 'h3'
 import { tavily } from '@tavily/core'
 import Firecrawl from '@mendable/firecrawl-js'
 import { useRuntimeConfig } from '#imports'
@@ -19,16 +20,43 @@ type WebSearchFunction = (
   options: WebSearchOptions,
 ) => Promise<WebSearchResult[]>
 
+export default defineEventHandler(async (event) => {
+  // Read the POST data sent from the client
+  const body = await readBody(event)
+  const { query, maxResults } = body
+
+  if (!query || typeof query !== 'string') {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Missing or invalid query parameter'
+    })
+  }
+
+  // Create the server-side search function instance
+  const webSearch = useWebSearch()
+
+  try {
+    // Call the web search function with the query and any default options
+    const results = await webSearch(query, { maxResults: maxResults, lang: 'en' })
+    return { results }
+  } catch (err: any) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: err.message || 'Search failed'
+    })
+  }
+})
+
 export const useWebSearch = (): WebSearchFunction => {
   const runtimeConfig = useRuntimeConfig()
-  // Provider is set internally via env.
-  const provider = 'tavily' as string;
+  // Choose the provider; adjust this value as needed.
+  const provider = 'tavily' as string
 
   switch (provider) {
     case 'firecrawl': {
       const fc = new Firecrawl({
-        apiKey: runtimeConfig.public.firecrawlApiKey as string,
-        apiUrl: runtimeConfig.public.firecrawlApiBase as string,
+        apiKey: runtimeConfig.firecrawlApiKey as string,
+        apiUrl: runtimeConfig.firecrawlApiBase as string,
       })
       return async (q: string, o: WebSearchOptions) => {
         const results = await fc.search(q, o)
@@ -47,7 +75,7 @@ export const useWebSearch = (): WebSearchFunction => {
     case 'tavily':
     default: {
       const tvly = tavily({
-        apiKey: runtimeConfig.public.TAVILY_API_KEY as string,
+        apiKey: runtimeConfig.TAVILY_API_KEY as string,
       })
       return async (q: string, o: WebSearchOptions) => {
         const results = await tvly.search(q, o)

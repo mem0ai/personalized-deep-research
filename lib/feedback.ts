@@ -1,9 +1,11 @@
 import { streamText } from 'ai'
+import type { TextStreamPart } from 'ai'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
 import { languagePrompt, systemPrompt } from './prompt'
-import { useAiModel } from '~/composables/useAiProvider'
+import { streamTextFromServer } from '~/composables/useAiProxy'
+import { openai } from '@ai-sdk/openai'
 
 type PartialFeedback = DeepPartial<z.infer<typeof feedbackTypeSchema>>
 
@@ -11,7 +13,7 @@ export const feedbackTypeSchema = z.object({
   questions: z.array(z.string()),
 })
 
-export function generateFeedback({
+export async function* generateFeedback({
   query,
   language,
   numQuestions = 3,
@@ -20,6 +22,7 @@ export function generateFeedback({
   language: string
   numQuestions?: number
 }) {
+  console.log("GENERATING FEEDBACK")
   const schema = z.object({
     questions: z
       .array(z.string())
@@ -32,19 +35,18 @@ export function generateFeedback({
     languagePrompt(language),
   ].join('\n\n')
 
-  const stream = streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
-    prompt,
-    onError({ error }) {
-      console.error(`generateFeedback`, error)
-      throw error
-    },
-  })
+  const stream = await streamTextFromServer({
+    prompt: prompt,
+    modelName: useConfigStore().config.ai.model
+  });
 
-  return parseStreamingJson(
-    stream.fullStream,
+  const parser = parseStreamingJson(
+    stream,
     feedbackTypeSchema,
     (value: PartialFeedback) => !!value.questions && value.questions.length > 0,
-  )
+  );
+
+  for await (const chunk of parser) {
+    yield chunk;
+  }
 }

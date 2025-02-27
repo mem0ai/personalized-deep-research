@@ -1,14 +1,14 @@
-import { streamText } from 'ai'
 import pLimit from 'p-limit'
 import { z } from 'zod'
 import { parseStreamingJson, type DeepPartial } from '~/utils/json'
 
 import { trimPrompt } from './ai/providers'
-import { languagePrompt, systemPrompt } from './prompt'
+import { languagePrompt } from './prompt'
 import zodToJsonSchema from 'zod-to-json-schema'
-import { useAiModel } from '~/composables/useAiProvider'
 import type { Locale } from '~/components/LangSwitcher.vue'
 import { useMem0Client } from '~/lib/mem0'
+import { streamTextFromServer } from '~/composables/useAiProxy'
+import { searchWebFromServer } from '~/composables/useWebProxy'
 
 export type ResearchResult = {
   learnings: string[]
@@ -75,7 +75,7 @@ export const searchQueriesTypeSchema = z.object({
 })
 
 // take en user query, return a list of SERP queries
-export function generateSearchQueries({
+export async function generateSearchQueries({
   query,
   numQueries = 3,
   learnings,
@@ -129,21 +129,18 @@ export function generateSearchQueries({
     `You MUST respond in JSON matching this JSON schema: ${jsonSchema}`,
     lp,
   ].join('\n\n')
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
-    prompt,
-    onError({ error }) {
-      throw error
-    },
-  })
+
+  return await streamTextFromServer({
+    prompt: prompt,
+    modelName: useConfigStore().config.ai.model
+  });
 }
 
 export const searchResultTypeSchema = z.object({
   learnings: z.array(z.string()),
   followUpQuestions: z.array(z.string()),
 })
-function processSearchResult({
+async function processSearchResult({
   query,
   results,
   numLearnings = 3,
@@ -181,14 +178,9 @@ function processSearchResult({
     languagePrompt(language),
   ].join('\n\n')
 
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
-    prompt,
-    onError({ error }) {
-      throw error
-    },
-  })
+  return await streamTextFromServer({
+    prompt, modelName: useConfigStore().config.ai.model
+  });
 }
 
 export async function writeFinalReport({
@@ -217,9 +209,12 @@ export async function writeFinalReport({
     150_000,
   )
   const _prompt = `
-    You are an AI assistant who refers a given prompt and learnings to generate a detailed research report.
-    The "memories" provided are the user's preferences/experience.
-    The research report should be implicitly tailored towards the user based these memories, but should NEVER incorporate the memories directly.
+    You will be given a prompt and learnings to generate a detailed research report.
+    You will be provided with "memories", which are the user's preferences/experience.
+    The research report should be implicitly tailored towards the user based these memories, but should NEVER reference the memories directly.
+
+    **Never mention the user or acknowledge the user directly in the report. Do not have any direct references to the user.**
+    The report, while tailored towards user, MUST be in third-person and should not reveal any personal information.
 
     # Your tasks:
     1. Provide a detailed research report that incorporates the learnings.
@@ -286,13 +281,9 @@ export async function writeFinalReport({
 
   console.log('Final report prompt:', _prompt)
 
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
+  return await streamTextFromServer({
     prompt: _prompt,
-    onError({ error }) {
-      throw error
-    },
+    modelName: useConfigStore().config.ai.model,
   })
 }
 
@@ -348,7 +339,7 @@ export async function deepResearch({
   })
 
   try {
-    const searchQueriesResult = generateSearchQueries({
+    const searchQueriesResult = await generateSearchQueries({
       query,
       learnings,
       numQueries: breadth,
@@ -360,7 +351,7 @@ export async function deepResearch({
     let searchQueries: PartialSearchQuery[] = []
 
     for await (const chunk of parseStreamingJson(
-      searchQueriesResult.fullStream,
+      searchQueriesResult,
       searchQueriesTypeSchema,
       (value) => !!value.queries?.length && !!value.queries[0]?.query,
     )) {
@@ -434,10 +425,9 @@ export async function deepResearch({
           })
           try {
             // search the web
-            const results = await useWebSearch()(searchQuery.query, {
-              maxResults: 5,
-              lang: languageCode,
-            })
+            const results = await searchWebFromServer(
+              {query: searchQuery.query, maxResults: 5}
+            )
             console.log(
               `[DeepResearch] Searched "${searchQuery.query}", found ${results.length} contents`,
             )
@@ -452,7 +442,7 @@ export async function deepResearch({
             // Breadth for the next search is half of the current breadth
             const nextBreadth = Math.ceil(breadth / 2)
 
-            const searchResultGenerator = processSearchResult({
+            const searchResultGenerator = await processSearchResult({
               query: searchQuery.query,
               results,
               numFollowUpQuestions: nextBreadth,
@@ -462,7 +452,7 @@ export async function deepResearch({
             let searchResult: PartialProcessedSearchResult = {}
 
             for await (const chunk of parseStreamingJson(
-              searchResultGenerator.fullStream,
+              searchResultGenerator,
               searchResultTypeSchema,
               (value) => !!value.learnings?.length,
             )) {
