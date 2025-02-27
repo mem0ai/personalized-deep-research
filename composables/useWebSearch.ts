@@ -47,7 +47,7 @@ export const useWebSearch = (): WebSearchFunction => {
     case 'tavily':
     default: {
       const tvly = tavily({
-        apiKey: runtimeConfig.public.TAVILY_API_KEY as string,
+        apiKey: runtimeConfig.TAVILY_API_KEY as string,
       })
       return async (q: string, o: WebSearchOptions) => {
         const results = await tvly.search(q, o)

@@ -1,14 +1,13 @@
-import { streamText } from 'ai'
 import pLimit from 'p-limit'
 import { z } from 'zod'
 import { parseStreamingJson, type DeepPartial } from '~/utils/json'
 
 import { trimPrompt } from './ai/providers'
-import { languagePrompt, systemPrompt } from './prompt'
+import { languagePrompt } from './prompt'
 import zodToJsonSchema from 'zod-to-json-schema'
-import { useAiModel } from '~/composables/useAiProvider'
 import type { Locale } from '~/components/LangSwitcher.vue'
 import { useMem0Client } from '~/lib/mem0'
+import { streamTextFromServer } from '~/composables/useAiProxy'
 
 export type ResearchResult = {
   learnings: string[]
@@ -129,13 +128,8 @@ export function generateSearchQueries({
     `You MUST respond in JSON matching this JSON schema: ${jsonSchema}`,
     lp,
   ].join('\n\n')
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
+  return streamTextFromServer({
     prompt,
-    onError({ error }) {
-      throw error
-    },
   })
 }
 
@@ -181,13 +175,8 @@ function processSearchResult({
     languagePrompt(language),
   ].join('\n\n')
 
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
+  return streamTextFromServer({
     prompt,
-    onError({ error }) {
-      throw error
-    },
   })
 }
 
@@ -286,13 +275,8 @@ export async function writeFinalReport({
 
   console.log('Final report prompt:', _prompt)
 
-  return streamText({
-    model: useAiModel(),
-    system: systemPrompt(),
+  return streamTextFromServer({
     prompt: _prompt,
-    onError({ error }) {
-      throw error
-    },
   })
 }
 

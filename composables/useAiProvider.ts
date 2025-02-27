@@ -15,8 +15,8 @@ export const useAiModel = () => {
 
   const provider = 'openai' as string
   // These env variables are expected to be set for each provider.
-  const apiKey = runtimeConfig.public.OPENAI_API_KEY as string
-  const heliconeApiKey = runtimeConfig.public.HELICONE_API_KEY as string
+  const apiKey = runtimeConfig.OPENAI_API_KEY as string
+  const heliconeApiKey = runtimeConfig.HELICONE_API_KEY as string
 
   // Common headers for Helicone
   const heliconeHeaders = {
