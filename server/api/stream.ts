@@ -16,14 +16,14 @@ import {
 export default defineEventHandler(async (event) => {
   // Read the POST data sent from the client
   const body = await readBody(event)
-  const { prompt } = body
+  const { prompt, modelName } = body
 
   if (!prompt) {
     throw createError({ statusCode: 400, message: 'Prompt is required.' })
   }
 
   // Create the model instance (defaulting to a fallback model if needed)
-  const modelInstance = useAiModel();
+  const modelInstance = useAiModel(modelName);
 
   try {
     // Use the streaming function to get the response
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-const useAiModel = () => {
+const useAiModel = (modelName: string) => {
   const runtimeConfig = useRuntimeConfig()
   let model: LanguageModelV1
 
@@ -61,13 +61,13 @@ const useAiModel = () => {
       baseURL: 'https://oai.hconeai.com/v1',  // Helicone proxy URL
       headers: heliconeHeaders
     })
-    model = openai('gpt-3.5-turbo')
+    model = openai(modelName)
   } else {
     const openai = createOpenAI({
       apiKey,
       baseURL: 'https://api.openai.com/v1',
     })
-    model = openai('gpt-3.5-turbo')
+    model = openai(modelName)
   }
 
 

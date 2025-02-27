@@ -44,7 +44,7 @@
       // Store a copy of the data
       const visitedUrls = researchResult.value.visitedUrls ?? []
       const learnings = researchResult.value.learnings ?? []
-      const { fullStream } = await writeFinalReport({
+      const fullStream = await writeFinalReport({
         prompt: getCombinedQuery(form.value, feedback.value),
         language: t('language', {}, { locale: locale.value }),
         learnings,

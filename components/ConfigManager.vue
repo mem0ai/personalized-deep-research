@@ -149,20 +149,18 @@
     try {
       loadingAiModels.value = true
       aiModelOptions.value = [
-        "gpt-3.5-turbo",
         "gpt-4",
-        "gpt-4-turbo",
         "gpt-4o",
         "gpt-4o-mini",
         "o1-mini",
-        "o1-preview"
+        "o1-preview",
       ]
       isLoadAiModelsFailed.value = false
 
       // Ensure the current model is in the list.
       if (aiModelOptions.value.length) {
         const currentModel = config.value.ai.model
-        if (currentModel && !currentModel.includes("o3-mini") && !aiModelOptions.value.includes(currentModel)) {
+        if (currentModel && !aiModelOptions.value.includes(currentModel)) {
           aiModelOptions.value.unshift(currentModel)
         }
       }

@@ -1,10 +1,10 @@
 import type { TextStreamPart } from 'ai'
 
-export async function streamTextFromServer({ prompt }: { prompt: string }): Promise<AsyncIterable<TextStreamPart<any>>> {
+export async function streamTextFromServer({ prompt, modelName }: { prompt: string, modelName: string }): Promise<AsyncIterable<TextStreamPart<any>>> {
   const response = await fetch('/api/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, modelName }),
   });
   
   const reader = response.body!.getReader();

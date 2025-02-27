@@ -35,7 +35,10 @@ export async function* generateFeedback({
     languagePrompt(language),
   ].join('\n\n')
 
-  const stream = await streamTextFromServer({ prompt });
+  const stream = await streamTextFromServer({
+    prompt: prompt,
+    modelName: useConfigStore().config.ai.model
+  });
 
   const parser = parseStreamingJson(
     stream,
