@@ -128,8 +128,7 @@
     researchResultInjectionKey,
   } from '~/constants/injection-keys'
   import MemorySidebar from '~/components/MemorySidebar.vue'
-
-  const version = useRuntimeConfig().public.version
+  import { useMem0Client } from '~/lib/mem0'
 
   // Explicitly typed refs:
   const configManagerRef = ref<InstanceType<typeof ConfigManager>>()
@@ -169,6 +168,12 @@
   provide(researchResultInjectionKey, researchResult)
 
   async function generateFeedback() {
+    const mem0Client = useMem0Client();
+    if (!mem0Client) {
+      console.error('Mem0 client is not available, cannot save to Mem0');
+      openConfigManager();
+      return;
+    }
     if (currentStep.value === 1) {
       currentStep.value = 2
       await nextTick();
