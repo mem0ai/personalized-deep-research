@@ -1,4 +1,6 @@
-export async function streamTextFromServer({ prompt }: { prompt: string }) {
+import type { TextStreamPart } from 'ai'
+
+export async function streamTextFromServer({ prompt }: { prompt: string }): Promise<AsyncIterable<TextStreamPart<any>>> {
   const response = await fetch('/api/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -13,9 +15,10 @@ export async function streamTextFromServer({ prompt }: { prompt: string }) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        yield { type: 'text', text: decoder.decode(value, { stream: true }) } as const;
+        const textDelta = decoder.decode(value, { stream: true });
+        yield { type: 'text-delta', textDelta } as TextStreamPart<any>;
       }
-    },
+    }
   };
   
   return stream;

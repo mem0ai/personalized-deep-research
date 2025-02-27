@@ -35,32 +35,15 @@ export async function* generateFeedback({
     languagePrompt(language),
   ].join('\n\n')
 
-  const stream = await streamTextFromServer({ prompt }) as AsyncIterable<TextStreamPart<any>>;
-  
-  console.log(stream, "STREAM")
+  const stream = await streamTextFromServer({ prompt });
 
-  for await (const chunk of stream) {
-    yield chunk;
-  }
-
-  // // collect all chunks
-  // const chunks = [];
-  // for await (const chunk of stream) {
-  //   chunks.push(chunk);
-  // }
-  // // const text = chunks.map((chunk) => chunk.text).join('');
-
-
-  const stream2 = streamText({
-    model: openai('gpt-4o'),
-    prompt: `Given the following query from the user, ask ${numQuestions} follow up questions to clarify the research direction. Return a maximum of ${numQuestions} questions, but feel free to return less if the original query is clear: <query>${query}</query>`,
-  })
-
-  console.log(stream2.fullStream, "STREAM2")
-
-  return parseStreamingJson(
-    stream2.fullStream,
+  const parser = parseStreamingJson(
+    stream,
     feedbackTypeSchema,
     (value: PartialFeedback) => !!value.questions && value.questions.length > 0,
-  )
+  );
+
+  for await (const chunk of parser) {
+    yield chunk;
+  }
 }
