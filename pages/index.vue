@@ -21,7 +21,8 @@
 
     <div class="flex flex-col lg:flex-row">
       <!-- Main Content -->
-      <div 
+      <div
+        ref="scrollContainer"
         class="flex-1 h-screen max-h-[calc(100vh-64px)] lg:max-h-screen overflow-y-auto transition-all duration-300" 
         :style="{ marginRight: sidebarWidth + 'px' }"
       >
@@ -141,6 +142,13 @@
   // Define reactive state for the current step.
   // 1 = only form visible, 2 = form + feedback, 3 = form + feedback + deep research, 4 = all visible.
   const currentStep = ref(1)
+  const scrollContainer = ref<HTMLElement | null>(null)
+  watch(currentStep, async () => {
+    await nextTick()
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+    }
+  })
 
   // Responsive state
   const isMobileSidebarOpen = ref(false)
